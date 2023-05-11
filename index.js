@@ -41,9 +41,9 @@ app.get('/select', async (req, res) => {
 	try {
 		// Create the video quality selection dropdown menu
 		const video = await ytdl.getInfo(url).catch((err) => {
-			res.redirect(`/?err=${encodeURIComponent('Unable to get information for this video, try again or try another video')}`);
-			return false;
+			return res.redirect(`/?err=${encodeURIComponent('Unable to get information for this video, try again or try another video')}`);
 		});
+		if (!video) return;
 
 		const videoDetails = video.videoDetails;
 
