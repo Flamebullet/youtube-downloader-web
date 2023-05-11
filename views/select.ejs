@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="icon" href="/img/youtube-icon.ico" />
+		<title>Download quality options</title>
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+			integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+			crossorigin="anonymous"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+			integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w=="
+			crossorigin="anonymous"
+		/>
+		<script
+			src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+			integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+			crossorigin="anonymous"
+		></script>
+		<script
+			src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+			integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+			crossorigin="anonymous"
+		></script>
+		<script
+			src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+			integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+			crossorigin="anonymous"
+		></script>
+		<script>
+			// Wait for content to load
+			document.addEventListener('DOMContentLoaded', function (event) {
+				// JS script
+				document.getElementById('videoqualitydownload').addEventListener('click', async (event) => {
+					event.preventDefault();
+					const selecturl = window.location.href;
+					const baseurl = window.location.origin;
+					const videoItag = document.getElementById('video-quality') ? document.getElementById('video-quality').value : null;
+
+					document.getElementById('videoqualitydownload').disabled = true;
+					document.getElementById('videoqualitydownload').style.cursor = 'not-allowed';
+
+					document.getElementById('download-progress').innerText =
+						'Please wait...The video is being downloaded, you will automatically be redirected when the download is complete.';
+
+					const response = await fetch(`${selecturl}&videoItag=${videoItag}&dl=true`, {
+						method: 'GET'
+					});
+
+					const data = await response.json();
+
+					window.open(`${baseurl}/select/download?file=${data.file}`);
+
+					window.location.href = `/`;
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div class="container my-5">
+			<h1>Previewing: <%= title%></h1>
+			<div class="container" style="padding-top: 56.25%; position: relative; width: 100%">
+				<iframe class="d-flex" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%" src="<%= url %>"> </iframe>
+			</div>
+			<div class="container">
+				<% if (videoSelect == 'on') { %>
+				<div class="selectdiv">
+					<table id="center">
+						<tr>
+							<td>
+								<select id="video-quality">
+									<%for (i in videoFormats) { let video = videoFormats[i];%>
+									<option value="<%=video.itag%>">bitrate: <%=video.bitrate%>bps | <%=video.container%> | <%=video.qualityLabel%></option>
+									<%}%>
+								</select>
+							</td>
+
+							<td><button class="search-download-button" id="videoqualitydownload" style="float: right !important">Download</button></td>
+						</tr>
+						<tr></tr>
+					</table>
+				</div>
+				<% } else {%>
+				<br />
+				<button class="search-download-button" id="videoqualitydownload" style="float: right !important">Download</button>
+				<% } %>
+				<div id="download-progress"></div>
+				<link rel="stylesheet" type="text/css" href="/css/dropdown.css" />
+			</div>
+		</div>
+		<link rel="stylesheet" href="/css/styles.css" />
+	</body>
+</html>

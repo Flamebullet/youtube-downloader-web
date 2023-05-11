@@ -1,0 +1,173 @@
+form input[type='text'] {
+	box-sizing: border-box;
+	margin: 0;
+	font-family: inherit;
+	overflow: visible;
+	padding: 0.375rem 0.75rem;
+	font-size: 1rem;
+	line-height: 1.5;
+	color: #272727;
+	background-color: #fff;
+	background-clip: padding-box;
+	border: 1px solid #ced4da;
+	border-radius: 0.25rem;
+	transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+	display: inline-block;
+	height: 2.5rem;
+	vertical-align: middle;
+	background-repeat: no-repeat;
+	background-attachment: scroll;
+	background-size: 16px 18px;
+	background-position: 98% 50%;
+	background-color: #dbdbdb;
+	cursor: auto;
+}
+
+div.body {
+	display: grid;
+	grid-template-columns: 20% 60% 20%;
+	grid-template-rows: 20% 60% 20%;
+	height: 100vh;
+	align-items: center;
+}
+
+div.header {
+	display: grid;
+	align-items: center;
+	justify-items: center;
+}
+
+div.content-wrapper {
+	display: grid;
+	align-items: center;
+	justify-items: center;
+	grid-template-rows: 30% 15% 55%;
+	min-height: 60%;
+}
+
+.header img {
+	float: left;
+	width: 100px;
+	height: 100px;
+	vertical-align: middle;
+}
+
+@media (prefers-color-scheme: dark) {
+	body,
+	.modal-content,
+	.swal-modal,
+	.swal-title,
+	.swal-text {
+		background: #252525;
+		background-color: #252525;
+		color: white;
+	}
+}
+
+@media (prefers-color-scheme: light) {
+	body,
+	.modal-content,
+	.swal-modal,
+	.swal-title,
+	.swal-text {
+		background: white;
+		background-color: white;
+		color: black;
+	}
+}
+
+body {
+	height: 100vh;
+}
+
+form {
+	display: grid;
+	height: 100%;
+	width: 100%;
+}
+
+/* Add Animation */
+@keyframes animatetop {
+	from {
+		top: -300px;
+		opacity: 0;
+	}
+	to {
+		top: 0;
+		opacity: 1;
+	}
+}
+
+.search-download-button {
+	display: block;
+	width: auto !important;
+	height: auto !important;
+	background: #2caa71;
+	padding: 10px 20px !important;
+	text-align: center;
+	border-radius: 5px;
+	color: white !important;
+	font-family: inherit !important;
+	font-weight: bold !important;
+	line-height: 25px;
+	cursor: pointer;
+}
+
+table {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	font-family: arial, sans-serif;
+	width: 100%;
+	border-collapse: separate;
+	border: 1px solid #9b9b9b;
+	border-radius: 0.5rem;
+}
+
+td,
+th {
+	text-align: left;
+	padding: 8px;
+}
+
+th {
+	background-color: #494949;
+	color: #d4d4d4;
+	border-top: none;
+}
+
+tr:nth-child(even) {
+	background-color: #9b9b9b;
+	color: rgb(0, 0, 0);
+}
+
+.loader {
+	border: 10px solid #f3f3f3;
+	border-radius: 50%;
+	border-top: 10px solid #3498db;
+	width: 60px;
+	height: 60px;
+	animation: spin 2s linear infinite;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+	0% {
+		-webkit-transform: rotate(0deg);
+	}
+	100% {
+		-webkit-transform: rotate(360deg);
+	}
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}

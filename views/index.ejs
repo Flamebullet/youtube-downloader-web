@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="icon" href="/img/youtube-icon.ico" />
+		<title>Youtube Downloader</title>
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+			integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+			crossorigin="anonymous"
+		/>
+		<!-- <link rel="stylesheet" href="/css/dark.css" media="{prefers-color-scheme: dark}" />
+		<link rel="stylesheet" href="/css/light.css" media="{prefers-color-scheme: light}" /> -->
+		<script>
+			document.addEventListener('DOMContentLoaded', function (event) {
+				document.getElementById('toggledarkmode').addEventListener('click', async () => {
+					// console.log(document.getElementById('body').style.colorScheme);
+					// const colourScheme = document.getElementById('body').style.colorScheme;
+					// // toggle body css style between light and dark mode
+					// if (colourScheme === 'dark') {
+					document.getElementById('body').style.colorScheme = 'light';
+					// } else if (colourScheme === 'light') {
+					// 	document.getElementById('body').style.colorScheme = 'dark';
+					// }
+				});
+
+				// document.getElementById('resettosystem').addEventListener('click', async () => {
+				// await window.darkMode.system();
+				// });
+
+				// check if the url is empty on submit
+				document.getElementById('download').addEventListener('submit', (event) => {
+					const url = document.querySelector('input[name=url]').value;
+					const videoRegex =
+						/^\s*\<?(https?:\/\/)?((w{3}\.)|(m\.)|(music\.))?(youtube\.com\/(watch\?(\S+)?v\=)|youtu\.be\/)(?<urlkey>[\S]{11})\>?\s*/gim;
+
+					const audio = document.getElementById('audio').checked;
+					const video = document.getElementById('video').checked;
+
+					if (!audio && !video) {
+						event.preventDefault();
+						// change audio and video checkbox border color to red
+						document.getElementById('audio').style.outline = '2px solid red';
+						document.getElementById('video').style.outline = '2px solid red';
+						alert('Please select at least one format');
+					}
+
+					if (!url) {
+						event.preventDefault();
+						// change url input border color to red
+						document.querySelector('input[name=url]').style.border = '3px solid red';
+						alert('Please enter a url/Search for a video');
+					}
+				});
+			});
+		</script>
+	</head>
+	<body id="body">
+		<div class="container my-5">
+			<!-- Main content -->
+			<div class="header">
+				<div>
+					<img height="120px" src="/img/youtube-icon.png" />
+					<h1 style="width: fit-content"><strong>Youtube Downloader</strong></h1>
+				</div>
+				<br />
+				<!-- <br /> -->
+				<!-- <div>
+					<button
+						id="toggledarkmode"
+						style="
+							width: auto !important;
+							height: auto !important;
+
+							text-align: center;
+							border-radius: 5px;
+							font-family: inherit !important;
+							font-weight: bold !important;
+							line-height: 25px;
+						"
+					>
+						Toggle Dark Mode
+					</button>
+					<button
+						id="resettosystem"
+						style="
+							width: auto !important;
+							height: auto !important;
+							text-align: center;
+							border-radius: 5px;
+							font-family: inherit !important;
+							font-weight: bold !important;
+							line-height: 25px;
+						"
+					>
+						Reset to System Theme
+					</button>
+				</div> -->
+			</div>
+			<form method="GET" action="/select" class="my-5">
+				<div class="form-group">
+					<div id="error"></div>
+					<label for="videoURL">Enter YouTube URL / Search for videos:</label>
+					<input type="text" class="form-control" placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ / Never gonna give you up" name="url" />
+				</div>
+				<div>
+					<span>Download with:</span>
+					<input type="checkbox" id="audio" name="audio" checked />
+					<label for="audio">audio</label>
+					<input type="checkbox" id="video" name="video" checked />
+					<label for="video">video</label>
+				</div>
+				<div style="width: 100%">
+					<button
+						type="submit"
+						id="download"
+						style="
+							float: right !important;
+							display: block;
+							width: auto !important;
+							height: auto !important;
+							background: #2caa71;
+							padding: 10px 20px !important;
+							text-align: center;
+							border-radius: 5px;
+							color: white !important;
+							font-family: inherit !important;
+							font-weight: bold !important;
+							line-height: 25px;
+							cursor: pointer;
+						"
+					>
+						Search
+					</button>
+				</div>
+			</form>
+		</div>
+		<link rel="stylesheet" href="/css/styles.css" />
+		<% if (err) {%>
+		<script>
+			const queryString = window.location.search;
+			const urlParams = new URLSearchParams(queryString);
+			document.getElementById('error').innerText = urlParams.get('err');
+			document.getElementById('error').style.color = 'red';
+		</script>
+		<%}%>
+	</body>
+</html>
