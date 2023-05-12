@@ -1,4 +1,5 @@
 const express = require('express');
+const https = require('https');
 const path = require('path');
 const app = express();
 const url = require('url');
@@ -7,6 +8,7 @@ const ytdl = require('ytdl-core');
 const fs = require('fs');
 const cp = require('child_process');
 const ffmpeg = require('ffmpeg-static');
+const ytsearch = require('yt-search');
 
 // Code to serve images
 app.set('views', path.join(__dirname, 'views'));
@@ -20,8 +22,13 @@ function throwError(res, err) {
 }
 
 // OUR ROUTES WILL GO HERE
-app.listen(3000, () => {
-	console.log('Server is running on http://localhost:3000');
+const key = fs.readFileSync(`${__dirname}\\certs\\key.pem`);
+const cert = fs.readFileSync(`${__dirname}\\certs\\cert.pem`);
+const server = https.createServer({ key: key, cert: cert }, app);
+
+const port = 443;
+server.listen(port, () => {
+	console.log(`Server is running on https://localhost:${port}`);
 });
 
 // home page
@@ -31,17 +38,35 @@ app.get('/', (req, res) => {
 	return res.render('index', { err: err });
 });
 
+// search page
+app.get('/search', async (req, res) => {
+	const { url, video, audio } = req.query;
+	let results;
+
+	ytsearch(url, async (err, r) => {
+		if (err) return res.redirect(`/?err=${encodeURIComponent(err)}`);
+		if (r.videos.length === 0) return res.redirect(`/?err=${encodeURIComponent('No videos found')}`);
+
+		// Create table to show list of available videos
+		results = await r.videos;
+		return res.render('search', { JSONresults: encodeURIComponent(JSON.stringify(results)), results: results, video: video, audio: audio });
+	});
+	return;
+});
+
 // Select quality page
-app.get('/select', async (req, res) => {
+app.get('/download', async (req, res) => {
 	let title, video_id, videoFormats;
 	const videoSelect = req.query.video ? req.query.video : 'off';
 	const audioSelect = req.query.audio ? req.query.audio : 'off';
 	const { url, videoItag, dl } = req.query;
 
+	if (url == '') return res.redirect(`/?err=${encodeURIComponent('URL cannot be empty')}`);
+
 	try {
 		// Create the video quality selection dropdown menu
 		const video = await ytdl.getInfo(url).catch((err) => {
-			return res.redirect(`/?err=${encodeURIComponent('Unable to get information for this video, try again or try another video')}`);
+			return res.redirect(`/search?url=${encodeURIComponent(url)}&video=${encodeURIComponent(videoSelect)}&audio=${encodeURIComponent(audioSelect)}`);
 		});
 		if (!video) return;
 
@@ -203,9 +228,7 @@ app.get('/select', async (req, res) => {
 			}
 		}
 
-		if (dl) {
-			return downloadVideo(videoItag, video.videoDetails);
-		}
+		if (dl) return downloadVideo(videoItag, videoDetails);
 
 		if (!video) return;
 
@@ -219,7 +242,7 @@ app.get('/select', async (req, res) => {
 			videoFormats: videoFormats,
 			videoSelect: videoSelect,
 			audioSelect: audioSelect,
-			videoDetails: videoDetails
+			videoDetails: JSON.stringify(videoDetails)
 		});
 	} catch (err) {
 		throwError(res, err);
@@ -227,7 +250,7 @@ app.get('/select', async (req, res) => {
 });
 
 // Download page
-app.get('/select/download', async function (req, res, next) {
+app.get('/download/download', async function (req, res, next) {
 	const file = decodeURIComponent(req.query.file);
 
 	res.download(file, async (err) => {

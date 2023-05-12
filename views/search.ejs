@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="icon" href="/img/youtube-icon.ico" />
+		<title>Search</title>
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+			integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+			crossorigin="anonymous"
+		/>
+		<script>
+			document.addEventListener('DOMContentLoaded', function (event) {
+				const results = JSON.parse(decodeURIComponent(`<%- JSONresults %>`));
+				const audio = `<%= audio %>`;
+				const video = `<%= video %>`;
+				const baseurl = window.location.origin;
+
+				async function searchDownloadButtonFunction() {
+					var id = parseInt(this.getAttribute('id').slice(8));
+					console.log(id);
+					console.log(results[id]);
+					window.location.href = `${baseurl}/download?url=${results[id].url}&audio=${audio}&video=${video}`;
+				}
+
+				resultElements = document.getElementsByClassName('search-download-button');
+				for (var i = 0; i < resultElements.length; i++) {
+					resultElements[i].addEventListener('click', searchDownloadButtonFunction, false);
+				}
+			});
+		</script>
+	</head>
+	<body id="body">
+		<div class="container my-5">
+			<!-- Main content -->
+			<table id="result-table">
+				<thead>
+					<tr>
+						<th>ID</th>
+						<th>Thumbnail</th>
+						<th>Track Title (Timestamp)</th>
+						<th>Uploaded</th>
+						<th>Channel</th>
+						<th>Views</th>
+						<th>Download</th>
+					</tr>
+				</thead>
+				<tbody>
+					<% for (var i in results) { %>
+					<tr>
+						<td><%= parseInt(i) + 1%></td>
+						<td>
+							<img src="<%= results[i].thumbnail %>" alt="<%= results[i].title %>" width="177" height="100" />
+						</td>
+						<td><%= results[i].title %> (<%= results[i].timestamp %>)</td>
+						<td><%= results[i].ago %></td>
+						<td><%= results[i].author.name %></td>
+						<td><%= String(results[i].views) %></td>
+						<td><button class="search-download-button" id="download<%= i %>}">Download</button></td>
+					</tr>
+					<% } %>
+				</tbody>
+			</table>
+		</div>
+		<link rel="stylesheet" href="/css/styles.css" />
+	</body>
+</html>

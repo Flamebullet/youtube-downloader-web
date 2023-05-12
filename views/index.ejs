@@ -34,8 +34,6 @@
 				// check if the url is empty on submit
 				document.getElementById('download').addEventListener('submit', (event) => {
 					const url = document.querySelector('input[name=url]').value;
-					const videoRegex =
-						/^\s*\<?(https?:\/\/)?((w{3}\.)|(m\.)|(music\.))?(youtube\.com\/(watch\?(\S+)?v\=)|youtu\.be\/)(?<urlkey>[\S]{11})\>?\s*/gim;
 
 					const audio = document.getElementById('audio').checked;
 					const video = document.getElementById('video').checked;
@@ -48,7 +46,7 @@
 						alert('Please select at least one format');
 					}
 
-					if (!url) {
+					if (url == '') {
 						event.preventDefault();
 						// change url input border color to red
 						document.querySelector('input[name=url]').style.border = '3px solid red';
@@ -100,7 +98,7 @@
 					</button>
 				</div> -->
 			</div>
-			<form method="GET" action="/select" class="my-5">
+			<form method="GET" action="/download" class="my-5">
 				<div class="form-group">
 					<div id="error"></div>
 					<label for="videoURL">Enter YouTube URL / Search for videos:</label>
