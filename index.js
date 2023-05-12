@@ -8,7 +8,11 @@ const ytdl = require('ytdl-core');
 const fs = require('fs');
 const cp = require('child_process');
 const ffmpeg = require('ffmpeg-static');
-const ytsearch = require('yt-search');
+const { Client } = require('youtubei');
+const youtube = new Client();
+const { spotifyId, spotifySecret } = require('./cred.js');
+const spotifyInfo = require('spotify-info');
+spotifyInfo.setApiCredentials(spotifyId, spotifySecret);
 
 // Code to serve images
 app.set('views', path.join(__dirname, 'views'));
@@ -19,6 +23,27 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 function throwError(res, err) {
 	return res.redirect(`/error?err=${err}`);
+}
+
+function secToStr(sec) {
+	if (sec === null || sec === undefined) return '0:00';
+
+	totalSeconds = sec;
+	let hours = Math.floor(totalSeconds / 3600).toLocaleString('en-US', {
+		minimumIntegerDigits: 2,
+		useGrouping: false
+	});
+	totalSeconds %= 3600;
+	let minutes = Math.floor(totalSeconds / 60).toLocaleString('en-US', {
+		minimumIntegerDigits: 2,
+		useGrouping: false
+	});
+	let seconds = (sec % 60).toLocaleString('en-US', {
+		minimumIntegerDigits: 2,
+		useGrouping: false
+	});
+
+	return `${hours}:${minutes}:${seconds}`.replace(/^(?:00:)?0?/, '');
 }
 
 // OUR ROUTES WILL GO HERE
@@ -43,14 +68,29 @@ app.get('/search', async (req, res) => {
 	const { url, video, audio } = req.query;
 	let results;
 
-	ytsearch(url, async (err, r) => {
-		if (err) return res.redirect(`/?err=${encodeURIComponent(err)}`);
-		if (r.videos.length === 0) return res.redirect(`/?err=${encodeURIComponent('No videos found')}`);
+	await youtube
+		.search(url, { type: 'video' })
+		.then(async (r) => {
+			if (r.length === 0) return res.redirect(`/?err=${encodeURIComponent(`No videos found from "${url}"`)}`);
 
-		// Create table to show list of available videos
-		results = await r.videos;
-		return res.render('search', { JSONresults: encodeURIComponent(JSON.stringify(results)), results: results, video: video, audio: audio });
-	});
+			results = r.items;
+			for (var result of results) {
+				result.client = null;
+				result.thumbnail = result.thumbnails[0].url;
+				result.thumbnails = null;
+				result.channel.client = null;
+				result.channel.thumbnails = null;
+				result.channel.videos = null;
+				result.channel.playlists = null;
+				result.url = `https://www.youtube.com/watch?v=${result.id}`;
+				result.timestamp = secToStr(result.duration);
+			}
+			return res.render('search', { JSONresults: encodeURIComponent(JSON.stringify({ results })), results: results, video: video, audio: audio });
+		})
+		.catch(async (err) => {
+			console.log(err);
+			return res.redirect(`/?err=${encodeURIComponent(err)}`);
+		});
 	return;
 });
 
@@ -59,9 +99,35 @@ app.get('/download', async (req, res) => {
 	let title, video_id, videoFormats;
 	const videoSelect = req.query.video ? req.query.video : 'off';
 	const audioSelect = req.query.audio ? req.query.audio : 'off';
-	const { url, videoItag, dl } = req.query;
+	let { url } = req.query;
+	const { videoItag, dl } = req.query;
 
 	if (url == '') return res.redirect(`/?err=${encodeURIComponent('URL cannot be empty')}`);
+
+	if (spotifyInfo.validateTrackURL(url)) {
+		try {
+			let track = await spotifyInfo.getTrack(url);
+
+			await youtube.search(`${track.name} ${track.artists[0].name}`, { type: 'video' }).then(async (r) => {
+				let durationList = [];
+				const goal = Math.round(track.duration / 1000);
+				r.items.map((v) => durationList.push(v.duration));
+				var closest = durationList.reduce(function (prev, curr) {
+					return Math.abs(curr - goal) < Math.abs(prev - goal) ? curr : prev;
+				});
+
+				for (const song of r.items) {
+					if (song.duration == closest) {
+						url = `https://www.youtube.com/watch?v=${song.id}`;
+						break;
+					}
+				}
+			});
+		} catch (err) {
+			console.log(err);
+			return res.redirect(`/?err=${encodeURIComponent('Invalid Spotify Track URL entered!')}`);
+		}
+	}
 
 	try {
 		// Create the video quality selection dropdown menu
@@ -236,7 +302,7 @@ app.get('/download', async (req, res) => {
 
 		if (videoSelect == 'on') videoFormats = ytdl.filterFormats(video.formats, 'videoonly');
 
-		return res.render('select', {
+		return res.render('download', {
 			url: video.videoDetails.embed.iframeUrl,
 			title: title,
 			videoFormats: videoFormats,

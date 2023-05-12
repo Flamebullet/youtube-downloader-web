@@ -14,15 +14,13 @@
 		/>
 		<script>
 			document.addEventListener('DOMContentLoaded', function (event) {
-				const results = JSON.parse(decodeURIComponent(`<%- JSONresults %>`));
+				const results = JSON.parse(decodeURIComponent(`<%- JSONresults %>`)).results;
 				const audio = `<%= audio %>`;
 				const video = `<%= video %>`;
 				const baseurl = window.location.origin;
 
 				async function searchDownloadButtonFunction() {
 					var id = parseInt(this.getAttribute('id').slice(8));
-					console.log(id);
-					console.log(results[id]);
 					window.location.href = `${baseurl}/download?url=${results[id].url}&audio=${audio}&video=${video}`;
 				}
 
@@ -56,9 +54,9 @@
 							<img src="<%= results[i].thumbnail %>" alt="<%= results[i].title %>" width="177" height="100" />
 						</td>
 						<td><%= results[i].title %> (<%= results[i].timestamp %>)</td>
-						<td><%= results[i].ago %></td>
-						<td><%= results[i].author.name %></td>
-						<td><%= String(results[i].views) %></td>
+						<td><%= results[i].uploadDate %></td>
+						<td><%= results[i].channel.name %></td>
+						<td><%= String(results[i].viewCount) %></td>
 						<td><button class="search-download-button" id="download<%= i %>}">Download</button></td>
 					</tr>
 					<% } %>
