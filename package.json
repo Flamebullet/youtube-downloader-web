@@ -1,6 +1,6 @@
 {
 	"name": "youtube-downloader-web",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "youtube downloader app, but on the web",
 	"main": "index.js",
 	"scripts": {

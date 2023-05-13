@@ -38,25 +38,30 @@
 			document.addEventListener('DOMContentLoaded', function (event) {
 				// JS script
 				document.getElementById('videoqualitydownload').addEventListener('click', async (event) => {
+					window.onbeforeunload = function () {
+						return 'Download is in progress, are you sure you want to leave?';
+					};
 					event.preventDefault();
 					const selecturl = window.location.href;
 					const baseurl = window.location.origin;
 					const videoItag = document.getElementById('video-quality') ? document.getElementById('video-quality').value : null;
 
-					document.getElementById('videoqualitydownload').disabled = true;
-					document.getElementById('videoqualitydownload').style.cursor = 'not-allowed';
+					// Hide the download button when downloading
+					if (document.getElementById('video-quality')) document.getElementById('video-quality').style.display = 'none';
+					document.getElementById('videoqualitydownload').style.display = 'none';
 
 					document.getElementById('download-progress').innerText =
-						'Please wait...The video is being downloaded, you will automatically be redirected when the download is complete.';
+						'⚠️ Please wait while the video is being downloaded, you will automatically be redirected when the download is complete. ⚠️';
 
 					const response = await fetch(`${selecturl}&videoItag=${videoItag}&dl=true`, {
 						method: 'GET'
 					});
-
 					const data = await response.json();
 
-					window.open(`${baseurl}/download/download?file=${data.file}`);
+					window.onbeforeunload = null;
 
+					// Download file and redirect back to home page
+					window.open(`${baseurl}/download/download?file=${data.file}`);
 					window.location.href = `/`;
 				});
 			});
@@ -90,7 +95,7 @@
 				<br />
 				<button class="search-download-button" id="videoqualitydownload" style="float: right !important">Download</button>
 				<% } %>
-				<div id="download-progress"></div>
+				<div id="download-progress" style="color: orange; font-weight: bold; font-size: large"></div>
 				<link rel="stylesheet" type="text/css" href="/css/dropdown.css" />
 			</div>
 		</div>

@@ -2,7 +2,6 @@ const express = require('express');
 const https = require('https');
 const path = require('path');
 const app = express();
-const url = require('url');
 // Downloading/file management modules
 const ytdl = require('ytdl-core');
 const fs = require('fs');
@@ -171,14 +170,11 @@ app.get('/download', async (req, res) => {
 				filename = `${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.mp3`;
 			}
 
+			// If file already exist remove the old file
 			if (fs.existsSync(filename)) {
-				let i = 1;
-				while (fs.existsSync(filename)) {
-					videoSelect == 'on'
-						? (filename = `${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')} (${i}).mp4`)
-						: (filename = `${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')} (${i}).mp3`);
-					i++;
-				}
+				fs.unlink(filename, () => {
+					return;
+				});
 			}
 			if (audioSelect == 'on' && videoSelect == 'on') {
 				// Start the ffmpeg child process
