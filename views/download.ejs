@@ -51,7 +51,7 @@
 					document.getElementById('videoqualitydownload').style.display = 'none';
 
 					document.getElementById('download-progress').innerText =
-						'⚠️ Please wait while the video is being downloaded, you will automatically be redirected when the download is complete. ⚠️';
+						'⚠️ Please wait while the video is being downloaded, download duration depends on size of video, you will automatically be redirected when the download is complete. ⚠️';
 
 					const response = await fetch(`${selecturl}&videoItag=${videoItag}&dl=true`, {
 						method: 'GET'
@@ -61,7 +61,12 @@
 					window.onbeforeunload = null;
 
 					// Download file and redirect back to home page
-					window.open(`${baseurl}/download/download?file=${data.file}`);
+					var newWin = window.open(`${baseurl}/download/download?file=${data.file}`);
+
+					if (!newWin || newWin.closed || typeof newWin.closed == 'undefined') {
+						//POPUP BLOCKED
+						alert('Please allow popups for this website to download the file. Refresh the page after allowing popups.');
+					}
 					window.location.href = `/`;
 				});
 			});

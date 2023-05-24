@@ -312,7 +312,7 @@ app.get('/download', async (req, res) => {
 });
 
 // Download page
-app.get('/download/download', async function (req, res, next) {
+app.get('/download/download', async function (req, res) {
 	const file = decodeURIComponent(req.query.file);
 
 	res.download(file, async (err) => {
