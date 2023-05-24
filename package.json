@@ -17,6 +17,6 @@
 		"fs": "^0.0.1-security",
 		"spotify-info": "^1.1.1",
 		"youtubei": "^1.1.2",
-		"ytdl-core": "^4.11.4"
+		"ytdl-core": "https://github.com:khlevon/node-ytdl-core.git#v4.11.4-patch.2"
 	}
 }
