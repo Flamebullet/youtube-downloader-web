@@ -12,49 +12,6 @@
 			integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
 			crossorigin="anonymous"
 		/>
-		<!-- <link rel="stylesheet" href="/css/dark.css" media="{prefers-color-scheme: dark}" />
-		<link rel="stylesheet" href="/css/light.css" media="{prefers-color-scheme: light}" /> -->
-		<script>
-			document.addEventListener('DOMContentLoaded', function (event) {
-				document.getElementById('toggledarkmode').addEventListener('click', async () => {
-					// console.log(document.getElementById('body').style.colorScheme);
-					// const colourScheme = document.getElementById('body').style.colorScheme;
-					// // toggle body css style between light and dark mode
-					// if (colourScheme === 'dark') {
-					document.getElementById('body').style.colorScheme = 'light';
-					// } else if (colourScheme === 'light') {
-					// 	document.getElementById('body').style.colorScheme = 'dark';
-					// }
-				});
-
-				// document.getElementById('resettosystem').addEventListener('click', async () => {
-				// await window.darkMode.system();
-				// });
-
-				// check if the url is empty on submit
-				document.getElementById('download').addEventListener('submit', (event) => {
-					const url = document.querySelector('input[name=url]').value;
-
-					const audio = document.getElementById('audio').checked;
-					const video = document.getElementById('video').checked;
-
-					if (!audio && !video) {
-						event.preventDefault();
-						// change audio and video checkbox border color to red
-						document.getElementById('audio').style.outline = '2px solid red';
-						document.getElementById('video').style.outline = '2px solid red';
-						alert('Please select at least one format');
-					}
-
-					if (url == '') {
-						event.preventDefault();
-						// change url input border color to red
-						document.querySelector('input[name=url]').style.border = '3px solid red';
-						alert('Please enter a url/Search for a video');
-					}
-				});
-			});
-		</script>
 	</head>
 	<body id="body">
 		<div class="container my-5">
@@ -143,6 +100,12 @@
 			const urlParams = new URLSearchParams(queryString);
 			document.getElementById('error').innerText = urlParams.get('err');
 			document.getElementById('error').style.color = 'red';
+
+			// if url is not empty, then fill the input with the url
+			const url = urlParams.get('url');
+			if (url) {
+				document.querySelector('input[name="url"]').value = url;
+			}
 		</script>
 		<%}%>
 	</body>

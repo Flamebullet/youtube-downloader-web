@@ -102,6 +102,8 @@ app.get('/download', async (req, res) => {
 	const { videoItag, dl } = req.query;
 
 	if (url == '') return res.redirect(`/?err=${encodeURIComponent('URL cannot be empty')}`);
+	if (videoSelect == 'off' && audioSelect == 'off')
+		return res.redirect(`/?err=${encodeURIComponent('Please select a video or audio format')}&url=${encodeURIComponent(url)}`);
 
 	if (spotifyInfo.validateTrackURL(url)) {
 		try {
