@@ -101,7 +101,7 @@ tr:nth-child(even) {
 	color: #f1f1f1;
 }
 
-tr:nth-child(odd) {
+#search-table:nth-child(odd) {
 	background-color: #161616;
 	color: #f1f1f1;
 }
