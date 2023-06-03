@@ -87,7 +87,9 @@
 							<td>
 								<select id="video-quality">
 									<%for (i in videoFormats) { let video = videoFormats[i];%>
-									<option value="<%=video.itag%>">bitrate: <%=video.bitrate%>bps | <%=video.container%> | <%=video.qualityLabel%></option>
+									<option value="<%=video.itag%>">
+										bitrate: <%=video.bitrate%>bps | <%=video.container%>(<%=video.videoCodec.split('.')[0]%>) | <%=video.qualityLabel%>
+									</option>
 									<%}%>
 								</select>
 							</td>
