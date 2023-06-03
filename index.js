@@ -46,18 +46,18 @@ function secToStr(sec) {
 }
 
 // OUR ROUTES WILL GO HERE
-// const key = fs.readFileSync(`${__dirname}\\certs\\key.pem`);
-// const cert = fs.readFileSync(`${__dirname}\\certs\\cert.pem`);
-// const server = https.createServer({ key: key, cert: cert }, app);
+const key = fs.readFileSync(`${__dirname}\\certs\\key.pem`);
+const cert = fs.readFileSync(`${__dirname}\\certs\\cert.pem`);
+const server = https.createServer({ key: key, cert: cert }, app);
 
-// const port = 443;
-// server.listen(port, () => {
-// 	console.log(`Server is running on https://localhost:${port}`);
-// });
-
-app.listen(3000, () => {
-	console.log('Server is running on http://localhost:3000');
+const port = 443;
+server.listen(port, () => {
+	console.log(`Server is running on https://localhost:${port}`);
 });
+
+// app.listen(3000, () => {
+// 	console.log('Server is running on http://localhost:3000');
+// });
 
 // home page
 app.get('/', (req, res) => {
