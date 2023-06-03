@@ -1,0 +1,208 @@
+<style>
+	.topnav {
+		position: sticky;
+		top: 0;
+		background: #0f0f0f;
+	}
+
+	* {
+		box-sizing: border-box;
+	}
+
+	.search-container {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.topnav #search-box {
+		border: none;
+		width: 100%;
+		background: none;
+		font-weight: 400;
+		color: #ffffff;
+	}
+
+	.topnav #search-box:focus-within {
+		border: none !important;
+		width: 100%;
+		background: none !important;
+		color: #c9c9c9;
+	}
+	.topnav #search-box:focus-visible {
+		outline: none !important;
+	}
+
+	.topnav #search {
+		height: 40px;
+		position: relative;
+		flex: 1;
+		flex-basis: 1e-9px;
+		display: flexbox;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+
+		padding: 0px 4px 0px 16px;
+		margin-top: 8px;
+		font-size: 17px;
+		border: 1px solid hsl(0, 0%, 18.82%);
+		border-right: none;
+		/* width: 540px !important; */
+		max-width: 540px;
+		background: #121212;
+		color: #e2e2e2;
+		border-radius: 40px 0 0 40px;
+	}
+
+	.topnav #search:focus-within {
+		border: 1px solid #1c62b9 !important;
+	}
+
+	.topnav .search-container #search-submit {
+		padding: 6px 10px;
+		margin-top: 8px;
+		margin-right: 16px;
+		background: #222222;
+		font-size: 17px;
+		border: none;
+		cursor: pointer;
+		border-radius: 0 40px 40px 0;
+		border-left: none;
+		border: 1px solid hsl(0, 0%, 18.82%);
+		width: 64px;
+		height: 40px;
+		position: relative;
+	}
+
+	#search-clear {
+		right: 0px;
+		margin-top: 8px;
+		margin-right: 4px;
+		margin-left: 4px;
+		padding-right: 12px;
+		display: inline-block;
+		border: none;
+		background: none;
+		width: 20px;
+		height: 20px;
+		margin-left: 10px;
+		background: linear-gradient(45deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 47%, #c9c9c9 45%, #c9c9c9 55%, rgba(0, 0, 0, 0) 53%, rgba(0, 0, 0, 0) 100%),
+			linear-gradient(135deg, transparent 0%, transparent 47%, #c9c9c9 45%, #c9c9c9 55%, transparent 53%, transparent 100%);
+	}
+</style>
+<div class="topnav">
+	<table style="min-height: 80px">
+		<tr>
+			<td class="header-search-bar" style="width: 60px" id="yt-icon">
+				<a href="/">
+					<img height="60px" src="/img/youtube-icon.png" />
+				</a>
+			</td>
+			<td class="header-search-bar" style="width: 100%" style="left: -50px" id="search-bar">
+				<form action="/download">
+					<input type="checkbox" id="audio" name="audio" checked hidden />
+					<input type="checkbox" id="video" name="video" checked hidden />
+					<div class="search-container">
+						<div id="search">
+							<svg
+								enable-background="new 0 0 24 24"
+								height="24"
+								viewBox="0 0 24 24"
+								width="24"
+								focusable="false"
+								style="pointer-events: none; display: block; width: 24px; height: 100%; min-height: 100%; min-width: 24px; margin-right: 8px"
+								fill="#c9c9c9"
+								id="search-icon"
+							>
+								<path
+									d="m20.87 20.17-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"
+								></path>
+							</svg>
+							<input type="text" placeholder="Search" id="search-box" name="url" />
+							<button type="reset" id="search-clear"></button>
+						</div>
+						<button type="submit" id="search-submit">
+							<svg
+								enable-background="new 0 0 24 24"
+								height="24"
+								viewBox="0 0 24 24"
+								width="24"
+								focusable="false"
+								style="pointer-events: none; display: block; width: 100%; height: 100%"
+								fill="#c9c9c9"
+							>
+								<path
+									d="m20.87 20.17-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"
+								></path>
+							</svg>
+						</button>
+					</div>
+					<script>
+						const queryString = window.location.search;
+						const urlParams = new URLSearchParams(queryString);
+						const audio = urlParams.get('audio');
+						const video = urlParams.get('video');
+						const url = urlParams.get('url');
+						audio === 'on' ? (document.getElementById('audio').checked = true) : (document.getElementById('audio').checked = false);
+						video === 'on' ? (document.getElementById('video').checked = true) : (document.getElementById('video').checked = false);
+						document.getElementById('search-box').value = url;
+						document.getElementById('search-icon').style.display = 'none';
+
+						document.getElementById('search-box').addEventListener('input', (e) => {
+							if (e.target.value === '') {
+								document.getElementById('search-clear').style.display = 'none';
+							} else {
+								document.getElementById('search-clear').style.display = 'inline-block';
+							}
+						});
+
+						document.getElementById('search-clear').addEventListener('click', (e) => {
+							document.getElementById('search-box').value = '';
+							document.getElementById('search-clear').style.display = 'none';
+						});
+
+						document.getElementById('search-box').addEventListener('focusin', (e) => {
+							document.getElementById('search').style.maxWidth = '572px';
+							document.getElementById('search').style.left = '-16px';
+							document.getElementById('search-submit').style.left = '-16px';
+							document.getElementById('search-icon').style.display = 'inline';
+						});
+
+						document.getElementById('search-box').addEventListener('focusout', (e) => {
+							document.getElementById('search').style.maxWidth = '540px';
+							document.getElementById('search').style.left = '0px';
+							document.getElementById('search-submit').style.left = '0px';
+							document.getElementById('search-icon').style.display = 'none';
+						});
+					</script>
+				</form>
+			</td>
+			<td class="header-search-bar" style="width: 60px" id="github">
+				<a href="https://github.com/Flamebullet/youtube-downloader-web">
+					<svg xmlns="http://www.w3.org/2000/svg" width="60px" height="100%" viewBox="0 0 24 24" fill="#c9c9c9">
+						<path
+							d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+						/>
+					</svg>
+				</a>
+			</td>
+		</tr>
+	</table>
+	<script>
+		if (window.innerWidth < 372) {
+			document.getElementById('github').style.display = 'none';
+			document.getElementById('yt-icon').style.display = 'none';
+		}
+		window.addEventListener('resize', function () {
+			let win = this;
+			if (win.innerWidth < 372) {
+				document.getElementById('github').style.display = 'none';
+				document.getElementById('yt-icon').style.display = 'none';
+			} else {
+				document.getElementById('github').style.display = 'table-cell';
+				document.getElementById('yt-icon').style.display = 'table-cell';
+			}
+		});
+	</script>
+</div>

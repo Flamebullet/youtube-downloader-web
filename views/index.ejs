@@ -14,7 +14,18 @@
 		/>
 	</head>
 	<body id="body">
-		<div class="container my-5">
+		<div style="max-height: 60px; padding-top: 10px; padding-right: 10px; float: right">
+			<div>
+				<a href="https://github.com/Flamebullet/youtube-downloader-web">
+					<svg xmlns="http://www.w3.org/2000/svg" width="60px" height="100%" viewBox="0 0 24 24" fill="#c9c9c9">
+						<path
+							d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+						/>
+					</svg>
+				</a>
+			</div>
+		</div>
+		<div class="container my-5" style="margin-top: 0px !important; padding-top: 100px">
 			<!-- Main content -->
 			<div class="header">
 				<div>
@@ -22,44 +33,31 @@
 					<h1 style="width: fit-content"><strong>Youtube Downloader</strong></h1>
 				</div>
 				<br />
-				<!-- <br /> -->
-				<!-- <div>
-					<button
-						id="toggledarkmode"
-						style="
-							width: auto !important;
-							height: auto !important;
-
-							text-align: center;
-							border-radius: 5px;
-							font-family: inherit !important;
-							font-weight: bold !important;
-							line-height: 25px;
-						"
-					>
-						Toggle Dark Mode
-					</button>
-					<button
-						id="resettosystem"
-						style="
-							width: auto !important;
-							height: auto !important;
-							text-align: center;
-							border-radius: 5px;
-							font-family: inherit !important;
-							font-weight: bold !important;
-							line-height: 25px;
-						"
-					>
-						Reset to System Theme
-					</button>
-				</div> -->
 			</div>
 			<form method="GET" action="/download" class="my-5">
 				<div class="form-group">
 					<div id="error"></div>
 					<label for="videoURL">Enter YouTube URL / Search for videos:</label>
-					<input type="text" class="form-control" placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ / Never gonna give you up" name="url" />
+					<div class="search-container">
+						<div id="search">
+							<svg
+								enable-background="new 0 0 24 24"
+								height="24"
+								viewBox="0 0 24 24"
+								width="24"
+								focusable="false"
+								style="pointer-events: none; display: block; width: 24px; height: 100%; min-height: 100%; min-width: 24px; margin-right: 8px"
+								fill="#c9c9c9"
+								id="search-icon"
+							>
+								<path
+									d="m20.87 20.17-5.59-5.59C16.35 13.35 17 11.75 17 10c0-3.87-3.13-7-7-7s-7 3.13-7 7 3.13 7 7 7c1.75 0 3.35-.65 4.58-1.71l5.59 5.59.7-.71zM10 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"
+								></path>
+							</svg>
+							<input type="text" placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ / Never gonna give you up" id="search-box" name="url" />
+							<button type="reset" id="search-clear"></button>
+						</div>
+					</div>
 				</div>
 				<div>
 					<span>Download with:</span>
@@ -69,28 +67,90 @@
 					<label for="video">video</label>
 				</div>
 				<div style="width: 100%">
-					<button
-						type="submit"
-						id="download"
-						style="
-							float: right !important;
-							display: block;
-							width: auto !important;
-							height: auto !important;
-							background: #2caa71;
-							padding: 10px 20px !important;
-							text-align: center;
-							border-radius: 5px;
-							color: white !important;
-							font-family: inherit !important;
-							font-weight: bold !important;
-							line-height: 25px;
-							cursor: pointer;
-						"
-					>
-						Search
-					</button>
+					<button type="submit" id="download">Search</button>
 				</div>
+				<style>
+					#download {
+						float: right !important;
+						display: block;
+						width: auto !important;
+						height: auto !important;
+						background: #303134;
+						padding: 10px 20px !important;
+						text-align: center;
+						border-radius: 10px;
+						color: white !important;
+						font-family: inherit !important;
+						font-weight: bold !important;
+						line-height: 25px;
+						cursor: pointer;
+					}
+
+					#search-box {
+						border: none;
+						width: 100%;
+						background: none;
+						font-weight: 400;
+						color: #ffffff;
+					}
+
+					#search-box:focus-within {
+						border: none !important;
+						width: 100%;
+						background: none !important;
+						color: #c9c9c9;
+					}
+					#search-box:focus-visible {
+						outline: none !important;
+					}
+
+					#search {
+						height: 40px;
+						position: relative;
+						flex: 1;
+						flex-basis: 1e-9px;
+						display: flexbox;
+						display: flex;
+						flex-direction: row;
+						justify-content: center;
+
+						padding: 0px 4px 0px 16px;
+						margin-top: 8px;
+						font-size: 17px;
+						border: 1px solid hsl(0, 0%, 18.82%);
+						background: #121212;
+						color: #e2e2e2;
+						border-radius: 40px;
+					}
+
+					#search:focus-within {
+						border: 1px solid #1c62b9;
+					}
+
+					#search-clear {
+						right: 40px;
+						margin-top: 8px;
+						margin-right: 12px;
+						margin-left: 4px;
+						padding-right: 8px;
+						border: none;
+						background: none;
+						width: 20px;
+						height: 20px;
+						margin-left: 10px;
+						display: none;
+						background: linear-gradient(
+								45deg,
+								rgba(0, 0, 0, 0) 0%,
+								rgba(0, 0, 0, 0) 47%,
+								#c9c9c9 45%,
+								#c9c9c9 55%,
+								rgba(0, 0, 0, 0) 53%,
+								rgba(0, 0, 0, 0) 100%
+							),
+							linear-gradient(135deg, transparent 0%, transparent 47%, #c9c9c9 45%, #c9c9c9 55%, transparent 53%, transparent 100%);
+					}
+				</style>
 			</form>
 		</div>
 		<link rel="stylesheet" href="/css/styles.css" />
@@ -100,6 +160,24 @@
 			const urlParams = new URLSearchParams(queryString);
 			document.getElementById('error').innerText = urlParams.get('err');
 			document.getElementById('error').style.color = 'red';
+			document.getElementById('search').style.border = '1px solid hsl(0, 100%, 50%)';
+
+			document.getElementById('search').addEventListener('click', () => {
+				document.getElementById('search').style.border = '';
+			});
+
+			document.getElementById('search-box').addEventListener('input', (e) => {
+				if (e.target.value === '') {
+					document.getElementById('search-clear').style.display = 'none';
+				} else {
+					document.getElementById('search-clear').style.display = 'inline-block';
+				}
+			});
+
+			document.getElementById('search-clear').addEventListener('click', (e) => {
+				document.getElementById('search-box').value = '';
+				document.getElementById('search-clear').style.display = 'none';
+			});
 
 			// if url is not empty, then fill the input with the url
 			const url = urlParams.get('url');
