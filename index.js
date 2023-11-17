@@ -13,6 +13,9 @@ const { spotifyId, spotifySecret } = require('./cred.js');
 const spotifyInfo = require('spotify-info');
 spotifyInfo.setApiCredentials(spotifyId, spotifySecret);
 
+// progress bar object
+const progbarobj = {};
+
 // Code to serve images
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -103,7 +106,7 @@ app.get('/download', async (req, res) => {
 	const videoSelect = req.query.video ? req.query.video : 'off';
 	const audioSelect = req.query.audio ? req.query.audio : 'off';
 	let { url } = req.query;
-	const { videoItag, dl } = req.query;
+	const { videoItag, dl, uid } = req.query;
 
 	if (url == '') return res.redirect(`/?err=${encodeURIComponent('URL cannot be empty')}`);
 	if (videoSelect == 'off' && audioSelect == 'off')
@@ -160,14 +163,37 @@ app.get('/download', async (req, res) => {
 					filter: 'audioonly',
 					quality: 'highestaudio',
 					highWaterMark: 1 << 25
+				}).on('progress', (_, downloaded, total) => {
+					tracker.audio = { downloaded, total };
 				});
 			}
 
 			if (videoSelect == 'on') {
 				video = ytdl(videoDetails.video_url, {
 					quality: `${videoItag}`
+				}).on('progress', (_, downloaded, total) => {
+					tracker.video = { downloaded, total };
 				});
 			}
+
+			let progressbarHandle = null;
+			const progressbarInterval = 1000;
+			const showProgress = () => {
+				const toMB = (i) => (i / 1024 / 1024).toFixed(2);
+
+				let progress = `Audio  | ${((tracker.audio.downloaded / tracker.audio.total) * 100).toFixed(2)}% processed `;
+				progress += `(${toMB(tracker.audio.downloaded)}MB of ${toMB(tracker.audio.total)}MB).${' '.repeat(10)}\n`;
+
+				progress += `Video  | ${((tracker.video.downloaded / tracker.video.total) * 100).toFixed(2)}% processed `;
+				progress += `(${toMB(tracker.video.downloaded)}MB of ${toMB(tracker.video.total)}MB).${' '.repeat(10)}\n`;
+
+				progress += `Merged | processing frame ${tracker.merged.frame} `;
+				progress += `(at ${tracker.merged.fps} fps => ${tracker.merged.speed}).${' '.repeat(10)}\n`;
+
+				progress += `running for: ${((Date.now() - tracker.start) / 1000 / 60).toFixed(2)} Minutes.`;
+
+				Object.assign(progbarobj, { [uid]: progress });
+			};
 
 			let filename;
 			if (videoSelect == 'on') {
@@ -226,12 +252,17 @@ app.get('/download', async (req, res) => {
 				);
 
 				ffmpegProcess.on('close', async () => {
+					clearInterval(progressbarHandle);
+					Object.assign(progbarobj, { [uid]: `Done ${encodeURIComponent(filename)}` });
 					return res.status(200).json({ file: encodeURIComponent(filename) });
 				});
 
 				// Link streams
 				// FFmpeg creates the transformer streams and we just have to insert / read data
 				ffmpegProcess.stdio[3].on('data', (chunk) => {
+					// Start the progress bar
+					if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
+
 					// Parse the param=value list returned by ffmpeg
 					const lines = chunk.toString().trim().split('\n');
 					const args = {};
@@ -245,6 +276,7 @@ app.get('/download', async (req, res) => {
 				audio.pipe(ffmpegProcess.stdio[4]);
 				video.pipe(ffmpegProcess.stdio[5]);
 			} else if (audioSelect == 'on') {
+				if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
 				// output audio as mp3 file
 				const ffmpegProcess = cp.spawn(
 					ffmpeg,
@@ -284,13 +316,18 @@ app.get('/download', async (req, res) => {
 				);
 
 				ffmpegProcess.on('close', async () => {
+					clearInterval(progressbarHandle);
+					Object.assign(progbarobj, { [uid]: `Done ${encodeURIComponent(filename)}` });
 					return res.status(200).json({ file: encodeURIComponent(filename) });
 				});
 
 				audio.pipe(ffmpegProcess.stdio[4]);
 			} else if (videoSelect == 'on') {
+				if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
 				video.pipe(fs.createWriteStream(filename));
 				video.on('end', () => {
+					clearInterval(progressbarHandle);
+					Object.assign(progbarobj, { [uid]: `Done ${encodeURIComponent(filename)}` });
 					return res.status(200).json({ file: encodeURIComponent(filename) });
 				});
 			}
@@ -298,7 +335,7 @@ app.get('/download', async (req, res) => {
 
 		if (dl) return downloadVideo(videoItag, videoDetails);
 
-		if (!video) return;
+		// if (!video) return;
 
 		title = videoDetails.title;
 
@@ -326,6 +363,18 @@ app.get('/download/download', async function (req, res) {
 			return;
 		});
 	});
+});
+
+app.get('/download/progress', async function (req, res) {
+	const { uid } = req.query;
+
+	const progress = progbarobj[uid] ? progbarobj[uid] : ' ';
+
+	if (progress.startsWith('Done')) {
+		delete progbarobj[uid];
+	}
+
+	return res.status(200).json({ progress: progress });
 });
 
 // error page

@@ -45,23 +45,44 @@
 					const selecturl = window.location.href;
 					const baseurl = window.location.origin;
 					const videoItag = document.getElementById('video-quality') ? document.getElementById('video-quality').value : null;
+					function wait(ms) {
+						return new Promise((resolve) => setTimeout(resolve, ms));
+					}
 
 					// Hide the download button when downloading
 					if (document.getElementById('video-quality')) document.getElementById('video-quality').style.display = 'none';
 					document.getElementById('videoqualitydownload').style.display = 'none';
 
-					document.getElementById('download-progress').innerText =
-						'⚠️ Please wait while the video is being downloaded, download duration depends on size of video, you will automatically be redirected when the download is complete. ⚠️';
+					const uid = Date.now().toString(36) + Math.random().toString(36).substr(2);
 
-					const response = await fetch(`${selecturl}&videoItag=${videoItag}&dl=true`, {
+					// Get download data
+					const response = fetch(`${selecturl}&videoItag=${videoItag}&dl=true&uid=${uid}`, {
 						method: 'GET'
 					});
-					const data = await response.json();
+
+					let data2;
+
+					// Loop progressbar until download complete
+					let progressloop = true;
+					while (progressloop) {
+						const response2 = await fetch(`${baseurl}/download/progress?uid=${uid}`, {
+							method: 'GET'
+						});
+						data2 = await response2.json();
+
+						if (data2.progress.startsWith('Done')) {
+							progressloop = false;
+							document.getElementById('download-progress-bar').innerText = 'Download Complete!';
+						} else {
+							document.getElementById('download-progress-bar').innerText = data2.progress;
+						}
+						wait(100);
+					}
 
 					window.onbeforeunload = null;
 
 					// Download file and redirect back to home page
-					var newWin = window.open(`${baseurl}/download/download?file=${data.file}`);
+					var newWin = window.open(`${baseurl}/download/download?file=${data2.progress.slice(5)}`);
 
 					if (!newWin || newWin.closed || typeof newWin.closed == 'undefined') {
 						//POPUP BLOCKED
@@ -94,7 +115,7 @@
 								</select>
 							</td>
 
-							<td style="padding-left: 20px">
+							<td style="padding-left: 30px">
 								<button class="search-download-button" id="videoqualitydownload" style="float: right !important">Download</button>
 							</td>
 						</tr>
@@ -105,7 +126,7 @@
 				<br />
 				<button class="search-download-button" id="videoqualitydownload" style="float: right !important">Download</button>
 				<% } %>
-				<div id="download-progress" style="color: orange; font-weight: bold; font-size: large"></div>
+				<div id="download-progress-bar"></div>
 				<link rel="stylesheet" type="text/css" href="/css/dropdown.css" />
 			</div>
 		</div>
