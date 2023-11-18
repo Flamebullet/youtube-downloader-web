@@ -188,9 +188,9 @@ app.get('/download', async (req, res) => {
 				progress += `(${toMB(tracker.video.downloaded)}MB of ${toMB(tracker.video.total)}MB).${' '.repeat(10)}\n`;
 
 				progress += `Merged | processing frame ${tracker.merged.frame} `;
-				progress += `(at ${tracker.merged.fps} fps => ${tracker.merged.speed}).${' '.repeat(10)}\n`;
+				progress += `(at ${tracker.merged.fps} fps => ${tracker.merged.speed}).${' '.repeat(10)}\n\n`;
 
-				progress += `running for: ${((Date.now() - tracker.start) / 1000 / 60).toFixed(2)} Minutes.`;
+				progress += `Running for: ${((Date.now() - tracker.start) / 1000 / 60).toFixed(2)} Minutes.`;
 
 				Object.assign(progbarobj, { [uid]: progress });
 			};

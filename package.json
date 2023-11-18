@@ -10,13 +10,13 @@
 	"license": "ISC",
 	"dependencies": {
 		"child_process": "^1.0.2",
-		"dotenv": "^16.0.3",
+		"dotenv": "^16.3.1",
 		"ejs": "^3.1.9",
 		"express": "^4.18.2",
-		"ffmpeg-static": "^5.1.0",
+		"ffmpeg-static": "^5.2.0",
 		"fs": "^0.0.1-security",
-		"spotify-info": "^1.1.1",
-		"youtubei": "^1.1.2",
+		"spotify-info": "^1.1.9",
+		"youtubei": "^1.2.1",
 		"ytdl-core": "https://github.com:khlevon/node-ytdl-core.git#v4.11.4-patch.2"
 	}
 }
