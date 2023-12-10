@@ -154,16 +154,14 @@
 			</form>
 		</div>
 		<link rel="stylesheet" href="/css/styles.css" />
-		<% if (err) {%>
 		<script>
-			const queryString = window.location.search;
-			const urlParams = new URLSearchParams(queryString);
-			document.getElementById('error').innerText = urlParams.get('err');
-			document.getElementById('error').style.color = 'red';
-			document.getElementById('search').style.border = '1px solid hsl(0, 100%, 50%)';
-
-			document.getElementById('search').addEventListener('click', () => {
-				document.getElementById('search').style.border = '';
+			// Show clear button when going back in page
+			window.addEventListener('pageshow', () => {
+				if (document.getElementById('search-box').value === '') {
+					document.getElementById('search-clear').style.display = 'none';
+				} else {
+					document.getElementById('search-clear').style.display = 'inline-block';
+				}
 			});
 
 			document.getElementById('search-box').addEventListener('input', (e) => {
@@ -184,6 +182,18 @@
 			if (url) {
 				document.querySelector('input[name="url"]').value = url;
 			}
+		</script>
+		<% if (err) {%>
+		<script>
+			const queryString = window.location.search;
+			const urlParams = new URLSearchParams(queryString);
+			document.getElementById('error').innerText = urlParams.get('err');
+			document.getElementById('error').style.color = 'red';
+			document.getElementById('search').style.border = '1px solid hsl(0, 100%, 50%)';
+
+			document.getElementById('search').addEventListener('click', () => {
+				document.getElementById('search').style.border = '';
+			});
 		</script>
 		<%}%>
 	</body>
