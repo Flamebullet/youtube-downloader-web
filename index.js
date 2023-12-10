@@ -93,7 +93,7 @@ app.get('/search', async (req, res) => {
 				result.url = `https://www.youtube.com/watch?v=${result.id}`;
 				result.timestamp = secToStr(result.duration);
 			}
-			console.log(result);
+
 			return res.render('search', { JSONresults: encodeURIComponent(JSON.stringify({ results })), results: results, video: video, audio: audio });
 		})
 		.catch(async (err) => {
