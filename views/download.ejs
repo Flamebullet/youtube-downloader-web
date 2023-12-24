@@ -75,48 +75,56 @@
 						return new Promise((resolve) => setTimeout(resolve, ms));
 					}
 
-					// Hide the download button when downloading
-					if (document.getElementById('video-quality')) document.getElementById('video-quality').style.display = 'none';
-					document.getElementById('videoqualitydownload').style.display = 'none';
+					if (videoItag == 'thumbnail') {
+						var newTab = window.open(videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url, '_blank');
 
-					const uid = Date.now().toString(36) + Math.random().toString(36).substr(2);
+						// Ensure the new tab is in the foreground
+						newTab.focus();
+						return;
+					} else {
+						// Hide the download button when downloading
+						if (document.getElementById('video-quality')) document.getElementById('video-quality').style.display = 'none';
+						document.getElementById('videoqualitydownload').style.display = 'none';
 
-					// Get download data
-					fetch(`${selecturl}&videoItag=${videoItag}&dl=true&uid=${uid}`, {
-						method: 'GET'
-					});
+						const uid = Date.now().toString(36) + Math.random().toString(36).substr(2);
 
-					let data2;
-					// Open the progress bar modal
-					document.getElementById('myModal').style.display = 'block';
-
-					// Loop progressbar until download complete
-					let progressloop = true;
-					while (progressloop) {
-						const response2 = await fetch(`${baseurl}/download/progress?uid=${uid}`, {
+						// Get download data
+						fetch(`${selecturl}&videoItag=${videoItag}&dl=true&uid=${uid}`, {
 							method: 'GET'
 						});
-						data2 = await response2.json();
 
-						if (data2.progress.startsWith('Done')) {
-							progressloop = false;
-							document.getElementById('download-progress-bar').innerText = 'Download Complete!';
-						} else {
-							document.getElementById('download-progress-bar').innerText = data2.progress;
+						let data2;
+						// Open the progress bar modal
+						document.getElementById('myModal').style.display = 'block';
+
+						// Loop progressbar until download complete
+						let progressloop = true;
+						while (progressloop) {
+							const response2 = await fetch(`${baseurl}/download/progress?uid=${uid}`, {
+								method: 'GET'
+							});
+							data2 = await response2.json();
+
+							if (data2.progress.startsWith('Done')) {
+								progressloop = false;
+								document.getElementById('download-progress-bar').innerText = 'Download Complete!';
+							} else {
+								document.getElementById('download-progress-bar').innerText = data2.progress;
+							}
+							wait(100);
 						}
-						wait(100);
+
+						window.onbeforeunload = null;
+
+						// Download file and redirect back to home page
+						var newWin = window.open(`${baseurl}/download/download?file=${data2.progress.slice(5)}`);
+
+						if (!newWin || newWin.closed || typeof newWin.closed == 'undefined') {
+							//POPUP BLOCKED
+							alert('Please allow popups for this website to download the file. Refresh the page after allowing popups.');
+						}
+						window.location.href = `/`;
 					}
-
-					window.onbeforeunload = null;
-
-					// Download file and redirect back to home page
-					var newWin = window.open(`${baseurl}/download/download?file=${data2.progress.slice(5)}`);
-
-					if (!newWin || newWin.closed || typeof newWin.closed == 'undefined') {
-						//POPUP BLOCKED
-						alert('Please allow popups for this website to download the file. Refresh the page after allowing popups.');
-					}
-					window.location.href = `/`;
 				});
 
 				let title = '<%= title %>';
@@ -156,15 +164,22 @@
 					if (secondsPast <= 86400) {
 						return parseInt(secondsPast / 3600) + ' hours ago';
 					}
-					if (secondsPast > 86400) {
-						let day = date.getDate();
-						let month = date
-							.toDateString()
-							.match(/ [a-zA-Z]*/)[0]
-							.replace(' ', '');
-						let year = date.getFullYear() == now.getFullYear() ? '' : ' ' + date.getFullYear();
-						return day + ' ' + month + year;
+					if (secondsPast <= 2592000) {
+						// up to 30 days
+						return parseInt(secondsPast / 86400) + ' days ago';
 					}
+					if (secondsPast <= 31536000) {
+						// up to 365 days
+						return parseInt(secondsPast / 2592000) + ' months ago';
+					}
+					if (secondsPast > 31536000) {
+						return parseInt(secondsPast / 31536000) + ' years ago';
+					}
+				}
+
+				function formatDate(date) {
+					const options = { day: '2-digit', month: 'short', year: 'numeric' };
+					return date.toLocaleDateString('en-GB', options);
 				}
 
 				function formatNumber(num) {
@@ -192,8 +207,6 @@
 
 				linkify('description');
 
-				document.getElementById('toggleButton').style.display = 'none'; // Hide the button by default
-
 				var content = document.getElementById('description');
 				var button = document.getElementById('toggleButton');
 
@@ -207,13 +220,30 @@
 					if (content.classList.contains('content-collapsed')) {
 						content.classList.remove('content-collapsed');
 						content.classList.add('content-expanded');
+						document.getElementById('video_stats').innerHTML = `<p style="font-size: 0.9rem">${formatNumber(
+							videoDetails.viewCount
+						)} views • ${formatDate(new Date(videoDetails.uploadDate))}</p>`;
 						button.textContent = 'Show Less';
 					} else {
 						content.classList.remove('content-expanded');
 						content.classList.add('content-collapsed');
+						document.getElementById('video_stats').innerHTML = `<p style="font-size: 0.9rem">${formatNumber(
+							videoDetails.viewCount
+						)} views • ${timeAgo(videoDetails.uploadDate)}</p>`;
 						button.textContent = 'Show More';
 					}
 				});
+
+				// Append download thumbnail option
+				var select = document.getElementById('video-quality');
+				var option = document.createElement('option');
+
+				// Set the value and text of the option
+				option.value = 'thumbnail';
+				option.text = 'Thumbnail download';
+
+				// Append the option to the select
+				select.appendChild(option);
 			});
 		</script>
 	</head>

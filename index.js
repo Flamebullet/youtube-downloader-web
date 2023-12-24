@@ -351,7 +351,6 @@ app.get('/download', async (req, res) => {
 			return result.replace('.0', '');
 		}
 
-		// videoDetails.storyboards = null;
 		videoDetails.availableCountries = null;
 		videoDetails.keywords = null;
 		let subscribers = convertNum(videoDetails.author.subscriber_count);
