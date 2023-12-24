@@ -85,7 +85,6 @@ app.get('/search', async (req, res) => {
 				result.thumbnail = result.thumbnails[0].url;
 				result.thumbnails = null;
 				result.channel.client = null;
-				result.channel.thumbnails = null;
 				result.channel.shorts = null;
 				result.channel.live = null;
 				result.channel.videos = null;
@@ -339,6 +338,23 @@ app.get('/download', async (req, res) => {
 		if (dl) return downloadVideo(videoItag, videoDetails);
 
 		// if (!video) return;
+		function convertNum(num) {
+			let result;
+			if (num >= 1000000) {
+				result = (num / 1000000).toFixed(1) + 'M';
+			} else if (num >= 1000) {
+				result = (num / 1000).toFixed(1) + 'K';
+			} else {
+				result = num.toString();
+			}
+			// Remove .0 from the result
+			return result.replace('.0', '');
+		}
+
+		// videoDetails.storyboards = null;
+		videoDetails.availableCountries = null;
+		videoDetails.keywords = null;
+		let subscribers = convertNum(videoDetails.author.subscriber_count);
 
 		title = videoDetails.title;
 
@@ -347,10 +363,13 @@ app.get('/download', async (req, res) => {
 		return res.render('download', {
 			url: video.videoDetails.embed.iframeUrl,
 			title: title,
+			author: encodeURIComponent(JSON.stringify(videoDetails.author)),
+			subscribers: subscribers,
+			verified: videoDetails.author.verified,
 			videoFormats: videoFormats,
 			videoSelect: videoSelect,
 			audioSelect: audioSelect,
-			videoDetails: JSON.stringify(videoDetails)
+			videoDetails: encodeURIComponent(JSON.stringify(videoDetails))
 		});
 	} catch (err) {
 		throwError(res, err);

@@ -13,53 +13,45 @@
 			integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
 			crossorigin="anonymous"
 		/>
-		<script>
-			document.addEventListener('DOMContentLoaded', function (event) {
-				const results = JSON.parse(decodeURIComponent(`<%- JSONresults %>`)).results;
-				const audio = `<%= audio %>`;
-				const video = `<%= video %>`;
-				const baseurl = window.location.origin;
-
-				async function searchDownloadButtonFunction() {
-					var id = parseInt(this.getAttribute('id').slice(8));
-					window.location.href = `${baseurl}/download?url=${results[id].url}&audio=${audio}&video=${video}`;
-				}
-
-				resultElements = document.getElementsByClassName('search-download-button');
-				for (var i = 0; i < resultElements.length; i++) {
-					resultElements[i].addEventListener('click', searchDownloadButtonFunction, false);
-				}
-			});
-		</script>
 	</head>
 	<body id="body">
 		<%- include("partials/header") %>
-		<div class="container my-5">
+		<div class="container my-5" style="padding-bottom: 30px">
 			<!-- Main content -->
 			<table id="result-table">
-				<thead>
-					<tr>
-						<th>ID</th>
-						<th>Thumbnail</th>
-						<th>Track Title (Timestamp)</th>
-						<th>Uploaded</th>
-						<th>Channel</th>
-						<th>Views</th>
-						<th>Download</th>
-					</tr>
-				</thead>
 				<tbody>
-					<% for (var i in results) { %>
+					<% function convertNum(num) { let result; if (num >= 1000000) { result = (num / 1000000).toFixed(1) + 'M'; } else if (num >= 1000) { result
+					= (num / 1000).toFixed(1) + 'K'; } else { result = num.toString(); } return result.replace('.0', ''); } %> <% for (var i in results) { %>
 					<tr id="search-table">
-						<td><%= parseInt(i) + 1%></td>
-						<td>
-							<img src="<%= results[i].thumbnail %>" alt="<%= results[i].title %>" width="177" height="100" />
+						<td class="thumbnail">
+							<div class="thumbnail-container">
+								<a href="download?url=<%=results[i].url %>&audio=<%= audio %>&video=<%= video %>">
+									<img src="<%= results[i].thumbnail %>" alt="<%= results[i].title %>" />
+									<div class="thumbnail-overlay">
+										<p class="thumbnail-timestamp"><%= results[i].timestamp %></p>
+									</div>
+								</a>
+							</div>
 						</td>
-						<td><%= results[i].title %> (<%= results[i].timestamp %>)</td>
-						<td><%= results[i].uploadDate %></td>
-						<td><%= results[i].channel.name %></td>
-						<td><%= String(results[i].viewCount) %></td>
-						<td><button class="search-download-button" id="download<%= i %>}">Download</button></td>
+						<td style="vertical-align: top">
+							<div>
+								<a href="download?url=<%=results[i].url %>&audio=<%= audio %>&video=<%= video %>" style="text-decoration: none">
+									<p class="title" style="font-weight: bold; font-size: 1.3rem; margin-bottom: 2px; color: white"><%= results[i].title %></p>
+								</a>
+								<p style="font-size: 0.9rem"><%= String(convertNum(results[i].viewCount)) %> views • <%= results[i].uploadDate %></p>
+								<p style="font-size: 0.9rem; margin-bottom: 5px">
+									<a href="https://www.youtube.com/channel/<%= results[i].channel.id %>" style="text-decoration: none; color: white">
+										<img
+											src="<%= results[i].channel.thumbnails[0].url %>"
+											alt="<%= results[i].channel.name %>"
+											style="border-radius: 50%; height: 25px; margin-right: 3px"
+										/>
+										<%= results[i].channel.name %>
+									</a>
+								</p>
+								<p class="description"><%= results[i].description %></p>
+							</div>
+						</td>
 					</tr>
 					<% } %>
 				</tbody>
@@ -67,4 +59,58 @@
 		</div>
 		<link rel="stylesheet" href="/css/styles.css" />
 	</body>
+	<style>
+		.title {
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		.description {
+			display: -webkit-box;
+			-webkit-line-clamp: 1;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			font-size: 0.9rem;
+			padding-top: max(10px);
+		}
+
+		.thumbnail-container {
+			display: block;
+			position: relative;
+			cursor: pointer;
+		}
+		.thumbnail {
+			max-width: 356px;
+			width: 45%;
+			height: auto;
+			border-radius: 10px;
+		}
+		.thumbnail img {
+			width: 100%;
+			height: auto;
+			aspect-ratio: 16/9;
+			border-radius: 10px;
+		}
+		.thumbnail-overlay {
+			position: absolute;
+			bottom: 3px;
+			right: 3px;
+			width: fit-content;
+			border-radius: 5px;
+			height: fit-content;
+			font-size: 0.8rem;
+			background-color: rgba(0, 0, 0, 0.8);
+		}
+		.thumbnail-timestamp {
+			color: white;
+			padding: 2px 4px;
+			margin: 0px;
+		}
+	</style>
+	<script>
+		document.title = `${url} - Search`;
+	</script>
 </html>

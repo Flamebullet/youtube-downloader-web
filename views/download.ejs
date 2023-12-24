@@ -118,56 +118,230 @@
 					}
 					window.location.href = `/`;
 				});
+
+				let title = '<%= title %>';
+				document.title = `${title} - Download`;
+
+				// add channel name
+				let videoDetails = JSON.parse(decodeURIComponent(`<%- videoDetails %>`));
+				let author = JSON.parse(decodeURIComponent(`<%- author %>`));
+				console.log(videoDetails);
+				document.getElementById('channel').innerHTML = `
+                    <table>
+                        <td>
+                            <a href="${author.user_url}" style="text-decoration: none; color: white">
+                                <img src='${author.thumbnails[0].url}' alt='${author.name}' style="border-radius: 50%; height: 40px; margin-right: 3px">
+                            </a>
+                        </td>
+                        <td style="vertical-align: middle; padding-left: 0px;">
+                            <a href="${author.user_url}" style="text-decoration: none; color: white">
+                                <div style="margin: 0px;display:flex">
+                                    <div style="overflow: hidden;max-width: 300px;text-overflow: ellipsis;">${author.name}</div><% if (verified) { %><div style="width: 14px; height: 14px; fill: currentcolor; align-self: center; padding-left:3px;"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" focusable="false" style="pointer-events: none; display: block; width: 100%; height: 100%;"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zM9.8 17.3l-4.2-4.1L7 11.8l2.8 2.7L17 7.4l1.4 1.4-8.6 8.5z"></path></svg></div><% } %>
+                                </div>
+                            </a>
+                            <div style="margin: 0px;"><%= subscribers %> subscribers</div>
+                        </td>
+                    `;
+
+				function timeAgo(dateParam) {
+					const date = typeof dateParam === 'object' ? dateParam : new Date(dateParam);
+					const now = new Date();
+					const secondsPast = (now.getTime() - date.getTime()) / 1000;
+
+					if (secondsPast < 60) {
+						return parseInt(secondsPast) + ' seconds ago';
+					}
+					if (secondsPast < 3600) {
+						return parseInt(secondsPast / 60) + ' minutes ago';
+					}
+					if (secondsPast <= 86400) {
+						return parseInt(secondsPast / 3600) + ' hours ago';
+					}
+					if (secondsPast > 86400) {
+						let day = date.getDate();
+						let month = date
+							.toDateString()
+							.match(/ [a-zA-Z]*/)[0]
+							.replace(' ', '');
+						let year = date.getFullYear() == now.getFullYear() ? '' : ' ' + date.getFullYear();
+						return day + ' ' + month + year;
+					}
+				}
+
+				function formatNumber(num) {
+					return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+				}
+
+				function linkify(elementId) {
+					var element = document.getElementById(elementId);
+					if (element) {
+						var text = element.innerHTML;
+						var urlRegex = /(https?:\/\/[^\s]+)/g;
+						element.innerHTML = text.replace(urlRegex, function (url) {
+							return '<a href="' + url + '" target="_blank">' + url + '</a>';
+						});
+					}
+				}
+
+				// add video stats to description box
+				document.getElementById('video_stats').innerHTML = `<p style="font-size: 0.9rem">${formatNumber(videoDetails.viewCount)} views • ${timeAgo(
+					videoDetails.uploadDate
+				)}</p>`;
+
+				// add collapsable description box
+				document.getElementById('description').textContent = `${videoDetails.description}`;
+
+				linkify('description');
+
+				document.getElementById('toggleButton').style.display = 'none'; // Hide the button by default
+
+				var content = document.getElementById('description');
+				var button = document.getElementById('toggleButton');
+
+				// Check if the text overflows
+				if (content.scrollHeight > content.clientHeight) {
+					// If the text overflows, show the button
+					button.style.display = 'block';
+				}
+
+				button.addEventListener('click', function () {
+					if (content.classList.contains('content-collapsed')) {
+						content.classList.remove('content-collapsed');
+						content.classList.add('content-expanded');
+						button.textContent = 'Show Less';
+					} else {
+						content.classList.remove('content-expanded');
+						content.classList.add('content-collapsed');
+						button.textContent = 'Show More';
+					}
+				});
 			});
 		</script>
 	</head>
 	<body>
 		<%- include("partials/header") %>
-		<div class="container my-5">
-			<h1>Previewing: <%= title%></h1>
-			<div class="container" style="padding-top: 56.25%; position: relative; width: 100%">
+		<div class="container my-5" style="padding-bottom: 30px">
+			<div class="container" style="padding-top: 56.25%; position: relative; width: 100%; border: 0px">
 				<iframe class="d-flex" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%" src="<%= url %>"> </iframe>
 			</div>
-			<div class="container">
-				<% if (videoSelect == 'on') { %>
-				<div class="selectdiv">
-					<table id="center">
-						<tr>
-							<td>
-								<select id="video-quality">
-									<%for (i in videoFormats) { let video = videoFormats[i];%>
-									<option value="<%=video.itag%>">
-										bitrate: <%=video.bitrate%>bps | <%=video.container%>(<%=video.videoCodec.split('.')[0]%>) | <%=video.qualityLabel%>
-									</option>
-									<%}%>
-								</select>
-							</td>
+			<!-- title -->
+			<h3 style="padding: 20px 0 5px 0"><%= title%></h3>
 
-							<td style="padding-left: 30px">
-								<button class="search-download-button" id="videoqualitydownload" style="float: right !important">Download</button>
-							</td>
-						</tr>
-						<tr></tr>
-					</table>
-				</div>
-				<% } else {%>
-				<br />
-				<button class="search-download-button" id="videoqualitydownload" style="float: right !important">Download</button>
-				<% } %>
-				<!-- The Modal -->
-				<div id="myModal" class="modal">
-					<!-- Modal content -->
-					<div class="modal-content">
-						<div class="modal-header">
-							<h4>Downloading...</h4>
-						</div>
-						<hr />
-						<div class="modal-body" id="download-progress-bar"></div>
+			<!-- div for channel and download -->
+			<div style="display: flex" class="channel_download_container">
+				<!-- channel -->
+				<div id="channel" class="float_left"></div>
+
+				<!-- download form -->
+				<div class="container float_right">
+					<% if (videoSelect == 'on') { %>
+					<div class="selectdiv">
+						<table id="center">
+							<tr>
+								<td>
+									<select id="video-quality">
+										<%for (i in videoFormats) { let video = videoFormats[i];%>
+										<option value="<%=video.itag%>">
+											bitrate: <%=video.bitrate%>bps | <%=video.container%>(<%=video.videoCodec.split('.')[0]%>) | <%=video.qualityLabel%>
+										</option>
+										<%}%>
+									</select>
+								</td>
+
+								<td style="padding: 0px">
+									<button class="search-download-button" id="videoqualitydownload" style="float: right !important">Download</button>
+								</td>
+							</tr>
+							<tr></tr>
+						</table>
 					</div>
+					<% } else {%>
+					<br />
+					<button class="search-download-button" id="videoqualitydownload" style="float: right !important">Download</button>
+					<% } %>
+					<!-- The Modal -->
+					<div id="myModal" class="modal">
+						<!-- Modal content -->
+						<div class="modal-content">
+							<div class="modal-header">
+								<h4>Downloading...</h4>
+							</div>
+							<hr />
+							<div class="modal-body" id="download-progress-bar"></div>
+						</div>
+					</div>
+					<link rel="stylesheet" type="text/css" href="/css/dropdown.css" />
 				</div>
-				<link rel="stylesheet" type="text/css" href="/css/dropdown.css" />
+			</div>
+
+			<!-- description box -->
+			<hr style="width: 100%; text-align: left; margin: 0 0 10px 0; background-color: rgba(77, 77, 77, 0.411)" />
+			<div style="padding: 15px; border-radius: 10px; background-color: rgba(77, 77, 77, 0.411)">
+				<div id="video_stats"></div>
+				<div class="content-collapsed" id="description" style="white-space: pre-wrap"></div>
+				<button id="toggleButton">Show More</button>
 			</div>
 		</div>
 		<link rel="stylesheet" href="/css/styles.css" />
+		<style>
+			#description {
+				line-height: fit-content;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				padding-bottom: 20px;
+			}
+
+			.content-expanded {
+				max-height: none; /* Show all lines */
+				padding-bottom: 20px;
+			}
+
+			.content-collapsed {
+				max-height: 4.5em; /* Show 3 lines */
+			}
+
+			#toggleButton {
+				background: none;
+				color: white;
+				border: none;
+				padding: 15px 0 0 0;
+				font: inherit;
+				cursor: pointer;
+				font-weight: bold;
+				text-decoration: none;
+			}
+
+			/* CSS for the parent div */
+			.channel_download_container {
+				width: 100%;
+				/* overflow: auto;  */
+				display: flex;
+				flex-wrap: wrap;
+			}
+			/* 
+			.float_left {
+				min-width: 300px;
+			} */
+			.float_right {
+				display: flex;
+				justify-content: flex-end;
+				/* width: 100% !important; */
+				flex: 1 0 60%;
+				padding: 0;
+			}
+
+			.float_left {
+				flex: 1 0 40%;
+				padding: 0;
+			}
+
+			/* CSS for screen sizes where the right div should move below the left div */
+			@media (max-width: 767px) {
+				.float_left,
+				.float_right {
+					flex: 1 0 100%;
+				}
+			}
+		</style>
 	</body>
 </html>

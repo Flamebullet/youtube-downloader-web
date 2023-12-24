@@ -1,7 +1,5 @@
-.selectdiv {
+/* .selectdiv {
 	position: relative;
-	/*Don't really need this just for demo styling*/
-
 	min-width: 500px;
 	margin-top: 20px;
 	margin-bottom: 20px;
@@ -11,7 +9,6 @@
 	border-radius: 0.5rem;
 }
 
-/* IE11 hide native button (thanks Matt!) */
 select::-ms-expand {
 	display: none;
 }
@@ -20,7 +17,6 @@ select::-ms-expand {
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	appearance: none;
-	/* Add some styling */
 
 	display: block;
 	width: 110%;
@@ -45,12 +41,54 @@ select::-ms-expand {
 	margin-left: auto;
 	margin-right: auto;
 	border: 0px !important;
+} */
+
+.selectdiv {
+	position: relative;
+	width: 100%;
+	max-width: 500px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	margin: 0;
+	padding: 0;
+	text-align: center;
+	border-radius: 0.5rem;
+}
+
+.selectdiv select {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	display: block;
+	width: 100%;
+	max-width: 370px;
+	height: 50px;
+	margin: 5px auto;
+	padding: 0px 24px;
+	font-size: 16px;
+	line-height: 1.75;
+	color: #333;
+	background-color: #ffffff;
+	background-image: none;
+	border: 1px solid #cccccc;
+	-ms-word-break: normal;
+	word-break: normal;
+	border-radius: 0.5rem;
+}
+
+@media (max-width: 600px) {
+	.selectdiv {
+		width: 100%;
+	}
+	.selectdiv select {
+		width: 100%;
+	}
 }
 
 .search-download-button {
 	float: right !important;
 	display: block;
-	width: auto !important;
+	/* width: auto !important; */
 	height: auto !important;
 	background: #2caa71;
 	padding: 10px 20px !important;
