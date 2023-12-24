@@ -203,7 +203,13 @@
 				)}</p>`;
 
 				// add collapsable description box
-				document.getElementById('description').textContent = `${videoDetails.description}`;
+				if (videoDetails.description == null) {
+					document.getElementById('description').textContent = `No description has been added to this video.`;
+					document.getElementById('description').style.fontStyle = 'italic';
+				} else {
+					document.getElementById('description').textContent = `${videoDetails.description}`;
+					document.getElementById('description').style.fontStyle = 'normal';
+				}
 
 				linkify('description');
 
