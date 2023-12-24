@@ -135,10 +135,10 @@
                         <td style="vertical-align: middle; padding-left: 0px;">
                             <a href="${author.user_url}" style="text-decoration: none; color: white">
                                 <div style="margin: 0px;display:flex">
-                                    <div style="overflow: hidden;max-width: 300px;text-overflow: ellipsis;">${author.name}</div><% if (verified) { %><div style="width: 14px; height: 14px; fill: currentcolor; align-self: center; padding-left:3px;"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" focusable="false" style="pointer-events: none; display: block; width: 100%; height: 100%;"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zM9.8 17.3l-4.2-4.1L7 11.8l2.8 2.7L17 7.4l1.4 1.4-8.6 8.5z"></path></svg></div><% } %>
+                                    <div style="overflow: hidden;max-width: 300px;text-overflow: ellipsis;font-size: 1.1rem">${author.name}</div><% if (verified) { %><div style="width: 14px; height: 14px; fill: currentcolor; align-self: center; padding-left:3px;"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" focusable="false" style="pointer-events: none; display: block; width: 100%; height: 100%;"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zM9.8 17.3l-4.2-4.1L7 11.8l2.8 2.7L17 7.4l1.4 1.4-8.6 8.5z"></path></svg></div><% } %>
                                 </div>
                             </a>
-                            <div style="margin: 0px;"><%= subscribers %> subscribers</div>
+                            <div style="margin: 0px; font-size: 0.8rem"><%= subscribers %> subscribers</div>
                         </td>
                     `;
 
