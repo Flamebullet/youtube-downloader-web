@@ -7,7 +7,7 @@ const ytdl = require('ytdl-core');
 const fs = require('fs');
 const cp = require('child_process');
 const ffmpeg = require('ffmpeg-static');
-const { Client } = require('youtubei');
+const { Client } = require('./youtubei');
 const youtube = new Client();
 const { spotifyId, spotifySecret } = require('./cred.js');
 const spotifyInfo = require('spotify-info');
@@ -78,7 +78,6 @@ app.get('/search', async (req, res) => {
 		.search(url, { type: 'video' })
 		.then(async (r) => {
 			if (r.length === 0) return res.redirect(`/?err=${encodeURIComponent(`No videos found from "${url}"`)}`);
-
 			results = r.items;
 			for (var result of results) {
 				result.client = null;
@@ -104,7 +103,7 @@ app.get('/search', async (req, res) => {
 
 // Select quality page
 app.get('/download', async (req, res) => {
-	let title, video_id, videoFormats;
+	let title, videoFormats;
 	const videoSelect = req.query.video ? req.query.video : 'off';
 	const audioSelect = req.query.audio ? req.query.audio : 'off';
 	let { url } = req.query;

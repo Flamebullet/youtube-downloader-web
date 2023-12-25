@@ -75,37 +75,11 @@ form {
 	cursor: pointer;
 }
 
-#result-table {
-	/* margin-top: 10px;
-	margin-bottom: 30px; */
-	font-family: arial, sans-serif;
-	width: 100%;
-	border-collapse: separate;
-	/* border: 1px solid #9b9b9b;
-	border-radius: 0.5rem; */
-}
-
 td,
 th {
 	text-align: left;
 	padding: 8px;
 }
-
-/* th {
-	background-color: #494949;
-	color: #d4d4d4;
-	border-top: none;
-} */
-
-/* tr:nth-child(even) {
-	background-color: #3a3a3a;
-	color: #f1f1f1;
-} */
-
-/* #search-table:nth-child(odd) {
-	background-color: #161616;
-	color: #f1f1f1;
-} */
 
 .header-search-bar {
 	background: #0f0f0f !important;
