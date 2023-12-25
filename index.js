@@ -80,6 +80,9 @@ app.get('/search', async (req, res) => {
 			if (r.length === 0) return res.redirect(`/?err=${encodeURIComponent(`No videos found from "${url}"`)}`);
 			results = r.items;
 			for (var result of results) {
+				if (!result.verified) {
+					if ((await youtube.getChannel(result.channel.id)).verified) result.verified = true;
+				}
 				result.client = null;
 				result.thumbnail = result.thumbnails[0].url;
 				result.thumbnails = null;

@@ -7,7 +7,6 @@ const PlaylistCompact_1 = require("../PlaylistCompact");
 const VideoCompact_1 = require("../VideoCompact");
 class ChannelParser {
     static loadChannel(target, data) {
-        // console.log(data.header.c4TabbedHeaderRenderer.badges)
         const { channelId, title, avatar, subscriberCountText, badges } = data.header.c4TabbedHeaderRenderer;
         target.id = channelId;
         target.name = title;

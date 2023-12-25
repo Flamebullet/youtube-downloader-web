@@ -17,8 +17,6 @@ var ChannelParser = /** @class */ (function () {
     function ChannelParser() {
     }
     ChannelParser.loadChannel = function (target, data) {
-        console.log('here')
-        console.log(target, data)
         var _a = data.header.c4TabbedHeaderRenderer, channelId = _a.channelId, title = _a.title, avatar = _a.avatar, subscriberCountText = _a.subscriberCountText;
         target.id = channelId;
         target.name = title;
