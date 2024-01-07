@@ -80,9 +80,6 @@ app.get('/search', async (req, res) => {
 			if (r.length === 0) return res.redirect(`/?err=${encodeURIComponent(`No videos found from "${url}"`)}`);
 			results = r.items;
 			for (var result of results) {
-				if (!result.verified) {
-					if ((await youtube.getChannel(result.channel.id)).verified) result.verified = true;
-				}
 				result.client = null;
 				result.thumbnail = result.thumbnails[0].url;
 				result.thumbnails = null;
@@ -150,7 +147,7 @@ app.get('/download', async (req, res) => {
 
 		const videoDetails = video.videoDetails;
 
-		if (videoDetails.isLiveContent || videoDetails.isLive)
+		if ((videoDetails.isLiveContent || videoDetails.isLive) && videoDetails.liveBroadcastDetails.isLiveNow)
 			return res.redirect(`/?err=${encodeURIComponent('Selected video is a live stream, please select a different video.')}`);
 
 		async function downloadVideo(videoItag, videoDetails) {
@@ -182,6 +179,19 @@ app.get('/download', async (req, res) => {
 
 			let progressbarHandle = null;
 			const progressbarInterval = 1000;
+
+			function convertDecimalMinutes(decimalMinutes) {
+				let minutes = Math.floor(decimalMinutes);
+				let seconds = parseFloat(((decimalMinutes - minutes) * 60).toFixed(2));
+				let minuteText = minutes === 1 ? ' minute ' : ' minutes ';
+				let secondText = seconds === 1 ? ' second' : ' seconds';
+				if (minutes > 0) {
+					return minutes + minuteText + seconds + secondText;
+				} else {
+					return seconds + secondText;
+				}
+			}
+
 			const showProgress = () => {
 				const toMB = (i) => (i / 1024 / 1024).toFixed(2);
 
@@ -192,9 +202,9 @@ app.get('/download', async (req, res) => {
 				progress += `(${toMB(tracker.video.downloaded)}MB of ${toMB(tracker.video.total)}MB).${' '.repeat(10)}\n`;
 
 				progress += `Merged | processing frame ${tracker.merged.frame} `;
-				progress += `(at ${tracker.merged.fps} fps => ${tracker.merged.speed}).${' '.repeat(10)}\n\n`;
+				progress += `(at ${tracker.merged.fps} fps → ${tracker.merged.speed}).${' '.repeat(10)}\n\n`;
 
-				progress += `Running for: ${((Date.now() - tracker.start) / 1000 / 60).toFixed(2)} Minutes.`;
+				progress += `Running for: ${convertDecimalMinutes(((Date.now() - tracker.start) / 1000 / 60).toFixed(2))}.`;
 
 				Object.assign(progbarobj, { [uid]: progress });
 			};

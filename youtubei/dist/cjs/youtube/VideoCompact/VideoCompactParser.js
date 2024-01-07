@@ -20,8 +20,7 @@ class VideoCompactParser {
         target.verified = !!((ownerBadges === null || ownerBadges === void 0 ? void 0 : ownerBadges[0].metadataBadgeRenderer.style) === "BADGE_STYLE_TYPE_VERIFIED");
         // Channel
         if (ownerText || shortBylineText) {
-            const browseEndpoint = (ownerText || shortBylineText).runs[0].navigationEndpoint
-                .browseEndpoint;
+            const browseEndpoint = (ownerText || shortBylineText).runs[0].navigationEndpoint.browseEndpoint;
             if (browseEndpoint) {
                 const id = browseEndpoint.browseId;
                 const thumbnails = channelThumbnailSupportedRenderers === null || channelThumbnailSupportedRenderers === void 0 ? void 0 : channelThumbnailSupportedRenderers.channelThumbnailWithLinkRenderer.thumbnail.thumbnails;
