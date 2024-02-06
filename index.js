@@ -9,7 +9,7 @@ const cp = require('child_process');
 const ffmpeg = require('ffmpeg-static');
 const { Client } = require('./youtubei');
 const youtube = new Client();
-const { spotifyId, spotifySecret } = require('./cred.js');
+const { spotifyId, spotifySecret, databaseUrl } = require('./cred.js');
 const spotifyInfo = require('spotify-info');
 spotifyInfo.setApiCredentials(spotifyId, spotifySecret);
 
@@ -413,4 +413,11 @@ app.get('/download/progress', async function (req, res) {
 // error page
 app.get('/error', (req, res) => {
 	return res.render('error', { err: req.query.err });
+});
+
+// Twitch bot website code
+app.get('/twitch-bot/bottercype', async function (req, res) {
+	const err = req.query.err ? req.query.err : null;
+
+	return res.render('bottercype', { err: err });
 });
