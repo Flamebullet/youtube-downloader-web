@@ -12,9 +12,13 @@ const youtube = new Client();
 const { spotifyId, spotifySecret, databaseUrl } = require('./cred.js');
 const spotifyInfo = require('spotify-info');
 spotifyInfo.setApiCredentials(spotifyId, spotifySecret);
+const postgres = require('postgres');
 
 // progress bar object
 const progbarobj = {};
+const sql = postgres(databaseUrl, {
+	idle_timeout: 5
+});
 
 // Code to serve images
 app.set('views', path.join(__dirname, 'views'));
@@ -417,7 +421,19 @@ app.get('/error', (req, res) => {
 
 // Twitch bot website code
 app.get('/twitch-bot/bottercype', async function (req, res) {
-	const err = req.query.err ? req.query.err : null;
+	const username = req.query.username ? req.query.username : null;
+	const button = req.query.buttonId ? req.query.buttonId : null;
 
-	return res.render('bottercype', { err: err });
+	console.log(req.query);
+	try {
+		if (username && button == 'add') {
+			await sql`INSERT INTO testchannels (username) VALUES (${String(username)});`;
+		} else if (username && button == 'remove') {
+			await sql`DELETE FROM testchannels WHERE username=${String(username)};`;
+			await sql`DELETE FROM channels WHERE username=${String(username)};`;
+		}
+	} catch (err) {
+		console.log(err);
+	}
+	return res.render('bottercype');
 });

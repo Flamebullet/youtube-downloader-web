@@ -28,7 +28,7 @@
 			.button-table td {
 				width: 50%;
 			}
-			.button-table button {
+			.button-table input {
 				width: 100% !important;
 			}
 
@@ -132,7 +132,7 @@
 			</div>
 			<div>
 				<div>Enter your twitch username to add Bottercype to manage your Twitch chat. Remember to add Bottercype as your moderator.</div>
-				<form method="GET" action="/twitch-bot/bottercype" class="my-5">
+				<form method="GET" action="/twitch-bot/bottercype" class="my-5" id="username-form">
 					<div class="username-container">
 						<div id="username-box">
 							<input type="text" placeholder="Enter Twitch username" autocomplete="nope" id="username" name="username" />
@@ -142,12 +142,10 @@
 
 					<table class="button-table">
 						<tr>
-							<td><button class="button" id="add" type="submit">Add Bot</button></td>
-							<td><button class="button" id="remove" type="submit">Remove Bot</button></td>
-						</tr>
-						<tr>
-							<td><button class="button" id="test" type="submit">Test Bot</button></td>
-							<td><button class="button" id="stop" type="submit">Stop Test</button></td>
+							<td><input class="button" id="add" type="button" value="Add Bot" onclick="submitFormWithButtonValue(this)" /></td>
+							<td>
+								<input class="button" id="remove" type="button" value="Remove Bot" onclick="submitFormWithButtonValue(this)" />
+							</td>
 						</tr>
 					</table>
 				</form>
@@ -155,6 +153,30 @@
 		</div>
 		<link rel="stylesheet" href="/css/styles.css" />
 		<script>
+			// Clear get query from url
+			if (window.history.replaceState) {
+				var clean_url = window.location.protocol + '//' + window.location.host + window.location.pathname;
+				window.history.replaceState(null, null, clean_url);
+			}
+
+			// Submit button value in the form
+			function submitFormWithButtonValue(button) {
+				var form = document.getElementById('username-form');
+				var username = document.getElementById('username');
+
+				if (username.value == '') return alert('Username cannot be empty!');
+
+				// Create a hidden input element, and append it to the form:
+				var input = document.createElement('input');
+				input.type = 'hidden';
+				input.name = 'buttonId'; // The name of the input field
+				input.value = button.id; // The value of the input field
+				form.appendChild(input);
+
+				// Submit the form
+				form.submit();
+			}
+
 			// Show clear button when going back in page
 			window.addEventListener('pageshow', () => {
 				if (document.getElementById('username').value === '') {
