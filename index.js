@@ -424,7 +424,6 @@ app.get('/twitch-bot/bottercype', async function (req, res) {
 	const username = req.query.username ? req.query.username : null;
 	const button = req.query.buttonId ? req.query.buttonId : null;
 
-	console.log(req.query);
 	try {
 		if (username && button == 'add') {
 			await sql`INSERT INTO testchannels (username) VALUES (${String(username)});`;
