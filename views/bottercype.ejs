@@ -143,9 +143,9 @@
 					<table class="button-table">
 						<tr>
 							<td><input class="button" id="add" type="button" value="Add Bot" onclick="submitFormWithButtonValue(this)" /></td>
-							<td>
+							<!-- <td>
 								<input class="button" id="remove" type="button" value="Remove Bot" onclick="submitFormWithButtonValue(this)" />
-							</td>
+							</td> -->
 						</tr>
 					</table>
 				</form>
@@ -153,6 +153,14 @@
 		</div>
 		<link rel="stylesheet" href="/css/styles.css" />
 		<script>
+			document.querySelector('#username-form').addEventListener('keydown', function (event) {
+				if (event.keyCode === 13) {
+					event.preventDefault();
+					document.querySelector('#add').click();
+					return false;
+				}
+			});
+
 			// Clear get query from url
 			if (window.history.replaceState) {
 				var clean_url = window.location.protocol + '//' + window.location.host + window.location.pathname;

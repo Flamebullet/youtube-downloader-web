@@ -427,10 +427,11 @@ app.get('/twitch-bot/bottercype', async function (req, res) {
 	try {
 		if (username && button == 'add') {
 			await sql`INSERT INTO testchannels (username) VALUES (${String(username)});`;
-		} else if (username && button == 'remove') {
-			await sql`DELETE FROM testchannels WHERE username=${String(username)};`;
-			await sql`DELETE FROM channels WHERE username=${String(username)};`;
 		}
+		// else if (username && button == 'remove') {
+		// 	await sql`DELETE FROM testchannels WHERE username=${String(username)};`;
+		// 	await sql`DELETE FROM channels WHERE username=${String(username)};`;
+		// }
 	} catch (err) {
 		console.log(err);
 	}
