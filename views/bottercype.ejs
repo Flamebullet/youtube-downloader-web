@@ -121,21 +121,81 @@
 			#remove {
 				background: #d32d28;
 			}
+
+			/* Form style */
+			#username-form {
+				margin: 10px !important;
+			}
+			#header {
+				margin-bottom: 25px !important;
+			}
+
+			.dropdown-content {
+				max-height: 0;
+				overflow: hidden;
+				transition: max-height 0.2s ease-out;
+			}
+
+			.show {
+				max-height: 100px; /* you can set this to a larger number or 'none' for big content */
+			}
+
+			#dropdown-parent {
+				margin-top: 3.5rem !important;
+			}
+
+			.title {
+				border-bottom: 1px solid white;
+				cursor: pointer;
+				padding-bottom: 10px;
+				margin-top: 20px;
+			}
+
+			.arrow {
+				display: inline-block;
+				width: 0;
+				height: 0;
+				border-left: 8px solid transparent;
+				border-right: 8px solid transparent;
+				border-top: 8px solid white;
+				/* border-bottom: 8px solid transparent; */
+				padding-bottom: 4px;
+				transition: transform 0.3s;
+				transform: rotate(-90deg);
+			}
+
+			.rotate {
+				transform: rotate(0deg);
+			}
+
+			code {
+				background-color: #2c2d2e; /* light grey background */
+				border-radius: 5px; /* rounded corners */
+				padding: 5px; /* some padding */
+			}
+
+			hr {
+				border: none;
+				height: 0.5px;
+				color: #888888; /* Old browsers */
+				background-color: #888888;
+			}
 		</style>
 	</head>
 	<body>
 		<div class="container my-5">
-			<div class="header">
+			<div class="header" id="header">
 				<div>
 					<h1><img src="/img/bottercype.png" alt="proto hypercype" /> <strong>Bottercype</strong></h1>
 				</div>
 			</div>
 			<div>
+				<div>A free Twitch bot to moderate and assist your Twitch moderators and community!</div><br>
 				<div>Enter your twitch username to add Bottercype to manage your Twitch chat. Remember to add Bottercype as your moderator.</div>
 				<form method="GET" action="/twitch-bot/bottercype" class="my-5" id="username-form">
 					<div class="username-container">
 						<div id="username-box">
-							<input type="text" placeholder="Enter Twitch username" autocomplete="nope" id="username" name="username" />
+							<input type="text" placeholder="Enter Twitch username (e.g. Bottercype)" autocomplete="nope" id="username" name="username" />
 							<button type="reset" id="username-clear"></button>
 						</div>
 					</div>
@@ -149,6 +209,205 @@
 						</tr>
 					</table>
 				</form>
+			</div>
+			<div id="dropdown-parent" style="padding-bottom: 40px">
+				<div id="dropdown">
+					<h3 class="title" onclick="toggleDropdown(this)"><span class="arrow"></span> Quick Start:</h3>
+
+					<div class="dropdown-content content" id="content">
+                        <br>
+						<p>1. Enter your Twitch username into the box above, and click on add bot.</p>
+						<p>2. Head over to your Twitch chat(https://twitch.tv/username/chat) and enter the command !connect</p>
+						<p>3. Enter <code>/mod @bottercype</code> into your chat to mod the bot.</p>
+                        <br>
+						<p>Congrats! You have successfully added Bottercype to your channel. Be sure to setup the custom commands, follow message, sub message and shoutout message! The commands can be found below in the 'Functions:' section</p>
+					</div>
+				</div>
+				<div class="dropdown">
+					<h3 class="title" onclick="toggleDropdown(this)">
+						<span class="arrow"></span>
+						Functions:
+					</h3>
+					<div class="dropdown-content">
+						<div id="commandcontent" style="background-color: #2c2d2e; padding: 20px; border-radius: 15px">
+							<h1 id="commands">Commands</h1>
+							<hr />
+							<ul>
+								<li><a href="#hello">hello</a> - Test command</li>
+								<li><a href="#connect">connect</a> - Connect bot to channel <strong>(Requires mod permission)</strong></li>
+								<li><a href="#disconnect">disconnect</a> - Disconnect bot from channel <strong>(Requires mod permission)</strong></li>
+								<li><a href="#so">so</a> - Shoutout another channel <strong>(Requires mod permission)</strong></li>
+								<li>
+									<a href="#followmsg">followmsg</a> - Command to add a custom message for user follow event
+									<strong>(Requires mod permission)</strong> <strong>(Bot Requires Mod permission)</strong>
+								</li>
+								<li>
+									<a href="#submsg">submsg</a> - Command to add a custom message for subscription events
+									<strong>(Requires mod permission)</strong>
+								</li>
+							</ul>
+							<h1 id="custom-commands">Custom commands</h1>
+							<hr />
+							<p><strong>Adding and removing custom commands require mod permission, using the custom command does not require mod</strong></p>
+							<ul>
+								<li><a href="#addcommand">addcommand</a> - Add a custom command</li>
+								<li><a href="#removecommand">removecommand</a> - Remove a custom command</li>
+								<li><a href="#addrandcommand">addrandcommand</a> - Add a custom command that contains rng</li>
+								<li><a href="#removerandcommand">removerandcommand</a> - Remove a custom rng command</li>
+								<li><a href="#addcountercommand">addcountercommand</a> - Add a custom counter command</li>
+								<li><a href="#removecountercommand">removecountercommand</a> - Remove a custom counter command</li>
+							</ul>
+							<br />
+							<h2 id="hello">hello</h2>
+							<hr />
+							<p>Command to test availability/functionality of bot</p>
+							<p><strong>Usage:</strong> <code>!hello</code></p>
+							<h2 id="connect">connect</h2>
+							<hr />
+							<p>Connect bot to channel</p>
+							<p><strong>Usage:</strong> <code>!connect</code></p>
+							<h2 id="disconnect">disconnect</h2>
+							<hr />
+							<blockquote>
+								<p>
+									IMPORTANT! Disconnecting bot will also remove all the data such as custom commands and messages. Changes cannot be undone.
+								</p>
+							</blockquote>
+							<p>Disconnect bot from channel and remove all commands and messages previously added.</p>
+							<p><strong>Usage:</strong> <code>!disconnect</code></p>
+							<h2 id="so">so</h2>
+							<hr />
+							<p>Shoutout another channel, and used to setup <code>!so</code> command</p>
+							<h4 id="to-add-a-shoutout-message">To add a shoutout message</h4>
+							<p><strong>Usage:</strong> <code>!so add [message]</code></p>
+							<p>Variables:</p>
+							<ul>
+								<li>{user} - Username of the channel getting the shoutout</li>
+								<li>{duration} - Duration of last stream</li>
+								<li>{game} - Last played game on last stream</li>
+								<li>{link} - URL to redirect to channel getting the shoutout</li>
+							</ul>
+							<p><strong>Example:</strong> <code>!so add Check out {user} at {link} , they were last seen playing {game} for {duration}</code></p>
+							<p>
+								<strong>Output when using !so @bottercype:</strong> Check out @Bottercype at
+								<a href="https://twitch.tv/Bottercype">https://twitch.tv/Bottercype</a> , they were last seen playing Just Chatting for 1h1m34s
+							</p>
+							<h4 id="to-remove-a-shoutout-message">To remove a shoutout message</h4>
+							<p><strong>Usage:</strong> <code>!so remove</code></p>
+							<h4 id="to-shoutout-a-channel">To shoutout a channel</h4>
+							<p>
+								<strong>Usage:</strong> <code>!so @[user]</code> OR <code>!so [user]</code>
+								<strong>Example:</strong>
+								<code>!so @Bottercype</code> OR <code>!so bottercype</code>
+							</p>
+							<h2 id="followmsg">followmsg</h2>
+							<hr />
+							<blockquote>
+								<p>IMPORTANT! Bot requires mod permission to perform this action</p>
+							</blockquote>
+							<p>Setup a custom message that triggers when a user follows your channel.</p>
+							<h4 id="to-add-a-follow-message">To add a follow message</h4>
+							<p><strong>Usage:</strong> <code>!followmsg add [message]</code></p>
+							<p>Variables:</p>
+							<ul>
+								<li>{user} - Username of the channel getting the shoutout</li>
+							</ul>
+							<p><strong>Example:</strong> <code>!followmsg add Welcome to the channel {user}</code></p>
+							<p><strong>Output when a user follows the channel:</strong> Welcome to the channel @Bottercype</p>
+							<h4 id="to-remove-the-follow-message">To remove the follow message</h4>
+							<p><strong>Usage:</strong> <code>!followmsg remove</code></p>
+							<h2 id="submsg">submsg</h2>
+							<hr />
+							<p>Setup a subscription message that triggers when a user subscribes, resubscribes or gift subscriptions to your channel.</p>
+							<h4 id="to-add-a-standard-sub-message-does-not-include-resub-gifted-subs-">
+								To add a standard sub message(Does not include resub/gifted subs)
+							</h4>
+							<p><strong>Usage:</strong> <code>!submsg addsub [message]</code></p>
+							<p>Variables:</p>
+							<ul>
+								<li>{user} - Username of the subscriber</li>
+								<li>{tier} - Tier level of the subscription</li>
+							</ul>
+							<p><strong>Example:</strong> <code>!submsg addmsg Thank you {user} for the tier {tier} sub</code></p>
+							<p><strong>Output when a user subscribes the channel:</strong> Thank you @Bottercype for the tier 3 sub</p>
+							<h4 id="to-remove-the-standard-sub-message">To remove the standard sub message</h4>
+							<p><strong>Usage:</strong> <code>!submsg removesub</code></p>
+							<hr />
+							<h4 id="to-add-a-resub-message">To add a resub message</h4>
+							<p><strong>Usage:</strong> <code>!submsg addresub [message]</code></p>
+							<p>Variables:</p>
+							<ul>
+								<li>{user} - Username of the subscriber</li>
+								<li>{duration} - Duration of subscription</li>
+								<li>{tier} - Tier level of the subscription</li>
+							</ul>
+							<p><strong>Example:</strong> <code>!submsg addresub Thank you {user} for the {duration} of {tier} resub</code></p>
+							<p><strong>Output when a user resubs the channel:</strong> Thank you @Bottercype for the 69 months of tier 3 resub</p>
+							<h4 id="to-remove-the-resub-message">To remove the resub message</h4>
+							<p><strong>Usage:</strong> <code>!submsg removeresub</code></p>
+							<hr />
+							<h4 id="to-add-a-gift-sub-message">To add a gift sub message</h4>
+							<p><strong>Usage:</strong> <code>!submsg addgiftsub [message]</code></p>
+							<p>Variables:</p>
+							<ul>
+								<li>{user} - Username of the sub gifter</li>
+								<li>{subcount} - Number of subs given</li>
+								<li>{tier} - Tier level of the subscription</li>
+								<li>{totalcount} - Total subs given in the channel</li>
+							</ul>
+							<p>
+								<strong>Example:</strong>
+								<code
+									>!submsg addgiftsub Thank you {user} for the {subcount} {tier} gifted subs, they have given a total of {totalcount} subs to
+									the community!</code
+								>
+							</p>
+							<p>
+								<strong>Output when a user gift 69 subs to the channel:</strong> Thank you @Bottercype for the 69 tier 1 gifted subs, they have
+								given a total of 420 subs to the community!
+							</p>
+							<h4 id="to-remove-the-gift-sub-message">To remove the gift sub message</h4>
+							<p><strong>Usage:</strong> <code>!submsg removegiftsub</code></p>
+							<h2 id="addcommand">addcommand</h2>
+							<hr />
+							<p>Add a custom command to your channel. Common use case include plugging in socials with <code>!socials</code>.</p>
+							<p><strong>Usage:</strong> <code>!addcommand [command] [message]</code></p>
+							<p>
+								<strong>Example:</strong>
+                                <br>
+								<code>!addcommand socials Join my Discord here! https://discord.com</code>
+                                <br>
+								<strong>Output when using !socials:</strong><br>
+								Join my Discord here! https://discord.com</a>
+							</p>
+							<h2 id="removecommand">removecommand</h2>
+							<hr />
+							<p>Removes a custom command aded via <code>!addcommand</code> from channel.</p>
+							<p><strong>Usage:</strong> <code>!removecommand [command]</code></p>
+							<p><strong>Example:</strong> <code>!removecommand socials</code></p>
+							<h2 id="addrandcommand">addrandcommand</h2>
+							<hr />
+							<p>Add a custom command that contains a randomly generated number to your channel.</p>
+							<p><strong>Usage:</strong> <code>!addrandcommand [command] [min] [max] [message]</code></p>
+							<p>Variables:</p>
+                            <ul>
+                                <li>{user} - username of the user or mentioned user {value} - a randomly generated number</li>
+                            </ul>
+							<p>
+								<strong>Example:</strong>
+								<code>!addrandcommand cute 0 200 {user} is {value}% cute!</code>
+                                <br>
+								<strong>Output when using !cute:</strong>
+								@bottercype is 69% cute!
+							</p>
+							<h2 id="removerandcommand">removerandcommand</h2>
+							<hr />
+							<p>Removes a custom rng command aded via <code>!addrandcommand</code> from channel.</p>
+							<p><strong>Usage:</strong> <code>!removerandcommand [command]</code></p>
+							<p><strong>Example:</strong> <code>!removerandcommand cute</code></p>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 		<link rel="stylesheet" href="/css/styles.css" />
@@ -206,6 +465,20 @@
 				document.getElementById('username').value = '';
 				document.getElementById('username-clear').style.display = 'none';
 			});
+
+			function toggleDropdown(element) {
+				var content = element.nextElementSibling;
+				var arrow = element.querySelector('.arrow');
+				if (content.style.maxHeight) {
+					content.style.maxHeight = null;
+					content.classList.remove('show');
+					arrow.classList.remove('rotate');
+				} else {
+					content.style.maxHeight = content.scrollHeight + 'px';
+					content.classList.add('show');
+					arrow.classList.add('rotate');
+				}
+			}
 		</script>
 	</body>
 </html>
