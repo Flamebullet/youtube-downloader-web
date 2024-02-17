@@ -437,3 +437,7 @@ app.get('/twitch-bot/bottercype', async function (req, res) {
 	}
 	return res.render('bottercype');
 });
+
+app.get('/links', async function (req, res) {
+	return res.render('links');
+});

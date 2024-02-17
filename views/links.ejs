@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="icon" href="/img/Flamesquish.gif" />
+		<title>Flame - Links</title>
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+			integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+			crossorigin="anonymous"
+		/>
+		<style>
+			body {
+				background: url('/img/Flame-Thisisfine.gif') no-repeat center center fixed;
+				-webkit-background-size: cover;
+				-moz-background-size: cover;
+				-o-background-size: cover;
+				background-size: cover;
+			}
+			.container {
+				backdrop-filter: blur(10px);
+				background-color: #0f0f0fbe;
+				color: #f1f1f1;
+				width: 100%;
+				max-width: 750px;
+				min-width: 600px;
+				min-height: 90vh;
+				border-radius: 100px;
+			}
+
+			@media (max-width: 800px) {
+				.container {
+					transform: scale(0.9);
+				}
+			}
+
+			@media (max-width: 700px) {
+				.container {
+					transform: scale(0.8);
+				}
+				.body-content {
+					padding-left: 2rem !important;
+					padding-right: 2rem !important;
+				}
+			}
+
+			@media (max-width: 600px) {
+				.container {
+					position: relative;
+				}
+			}
+
+			@media (max-width: 500px) {
+				.container {
+					transform: scale(0.6);
+				}
+			}
+
+			@media (max-width: 400px) {
+				.container {
+					transform: scale(0.5);
+				}
+			}
+
+			.body-content {
+				padding: 5rem;
+			}
+			td {
+				padding: 10px 0px;
+			}
+			.button-div {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				flex-direction: row;
+				height: 100%;
+				width: 100%;
+			}
+
+			.button-div img {
+				height: 50px;
+				width: 50px;
+			}
+
+			.button-div span {
+				font-size: 25px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				margin-left: 10px;
+			}
+
+			button {
+				height: 75px;
+				border-radius: 40px;
+				padding: 0px 40px;
+				background-color: #fd9e33;
+				font-weight: bold;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container my-5 body-content">
+			<div class="header" id="header">
+				<div>
+					<h1 style="font-size: 60px"><img src="/img/Flamesquish.gif" alt="Flame squish gif" style="height: 200px; width: 200px" /> Flame</h1>
+				</div>
+			</div>
+			<div>
+				<div style="font-size: 20px; margin-bottom: 30px">
+					Just a protogen on the internet that codes. Below are links to some of my personnal projects that is free to use :3
+				</div>
+				<br />
+				<table>
+					<tr>
+						<td>
+							<button class="redirect-buttons" onclick="window.open('https://yt-dl.asuscomm.com/', '_blank');">
+								<div class="button-div">
+									<img src="/img/youtube-icon.png" alt="Youtube Icon" />
+									<span>YouTube Downloader</span>
+								</div>
+							</button>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<button class="redirect-buttons" onclick="window.open('https://yt-dl.asuscomm.com/twitch-bot/bottercype', '_blank');">
+								<div class="button-div">
+									<img src="/img/bottercype.png" alt="bottercype" />
+									<span>Twitch Bot(Bottercype)</span>
+								</div>
+							</button>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<button class="redirect-buttons" onclick="window.open('https://flamebullet.github.io/Ro-Bot-V2-Webpage/#/index', '_blank');">
+								<div class="button-div">
+									<img src="/img/ro-botv2.png" alt="Ro-botv2" />
+									<span>Discord Bot(Ro-BotV2)</span>
+								</div>
+							</button>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<button class="redirect-buttons" onclick="window.open('https://x.com/Flamebullet', '_blank');">
+								<div class="button-div">
+									<img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg" alt="Twitter logo" />
+									<span>Twitter/X</span>
+								</div>
+							</button>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<script>
+			function adjustContainerPosition() {
+				var container = document.querySelector('.container');
+				var windowWidth = window.innerWidth;
+				if (windowWidth < 600) {
+					var leftValue = windowWidth - 600;
+					leftValue = leftValue / 2;
+					container.style.left = leftValue + 'px';
+				}
+			}
+
+			window.addEventListener('resize', adjustContainerPosition);
+			window.addEventListener('load', adjustContainerPosition);
+		</script>
+		<!-- <link rel="stylesheet" href="/css/styles.css" /> -->
+	</body>
+</html>
