@@ -169,7 +169,9 @@
 			}
 
 			window.addEventListener('resize', adjustContainerPosition);
-			window.addEventListener('load', adjustContainerPosition);
+
+			window.addEventListener('DOMContentLoaded', adjustContainerPosition);
+			// adjustContainerPosition();
 		</script>
 		<!-- <link rel="stylesheet" href="/css/styles.css" /> -->
 	</body>

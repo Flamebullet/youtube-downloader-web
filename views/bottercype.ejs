@@ -245,6 +245,10 @@
 									<a href="#submsg">submsg</a> - Command to add a custom message for subscription events
 									<strong>(Requires mod permission)</strong>
 								</li>
+								<li>
+									<a href="#bitmsg">bitmsg</a> - Command to add a custom message for cheer events
+									<strong>(Requires mod permission)</strong>
+								</li>
 							</ul>
 							<h1 id="custom-commands">Custom commands</h1>
 							<hr />
@@ -368,10 +372,31 @@
 							</p>
 							<h4 id="to-remove-the-gift-sub-message">To remove the gift sub message</h4>
 							<p><strong>Usage:</strong> <code>!submsg removegiftsub</code></p>
+                            <h2 id="bitmsg">bitmsg</h2>
+                            <p>Setup a custom message that triggers when a user sends bits your channel.</p>
+                            <h4 id="to-add-a-bit-message">To add a bit message</h4>
+                            <p><strong>Usage:</strong>
+                            <code>!bitmsg add [message]</code></p>
+                            <p>Variables:</p>
+                            <ul>
+                            <li>{user} - Username of the channel getting the shoutout</li>
+                            <li>{bits} - Amount of bits cheered</li>
+                            </ul>
+                            <p><strong>Example:</strong>
+                            <code>!bitmsg add Thank you {user} for the {bits}bits</code></p>
+                            <p><strong>Output when a user cheer 100bits to the channel:</strong>
+                            Thank you @Bottercype for the 100bits</p>
+                            <h4 id="to-remove-the-bit-message">To remove the bit message</h4>
+                            <p><strong>Usage:</strong>
+                            <code>!bitmsg remove</code></p>
 							<h2 id="addcommand">addcommand</h2>
 							<hr />
 							<p>Add a custom command to your channel. Common use case include plugging in socials with <code>!socials</code>.</p>
 							<p><strong>Usage:</strong> <code>!addcommand [command] [message]</code></p>
+                            <p>Variables:</p>
+                            <ul>
+                                <li>{user} - username of the user or mentioned user</li>
+                            </ul>
 							<p>
 								<strong>Example:</strong>
                                 <br>
@@ -391,7 +416,8 @@
 							<p><strong>Usage:</strong> <code>!addrandcommand [command] [min] [max] [message]</code></p>
 							<p>Variables:</p>
                             <ul>
-                                <li>{user} - username of the user or mentioned user {value} - a randomly generated number</li>
+                                <li>{user} - username of the user or mentioned user</li>
+                                <li>{value} - a randomly generated number</li>
                             </ul>
 							<p>
 								<strong>Example:</strong>
