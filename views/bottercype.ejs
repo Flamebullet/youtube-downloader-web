@@ -293,8 +293,8 @@
 							</ul>
 							<p><strong>Example:</strong> <code>!so add Check out {user} at {link} , they were last seen playing {game} for {duration}</code></p>
 							<p>
-								<strong>Output when using !so @bottercype:</strong> Check out @Bottercype at
-								<a href="https://twitch.tv/Bottercype">https://twitch.tv/Bottercype</a> , they were last seen playing Just Chatting for 1h1m34s
+								<strong>Output when using !so @bottercype:</strong> <br>
+                                Check out @Bottercype at <a href="https://twitch.tv/Bottercype">https://twitch.tv/Bottercype</a> , they were last seen playing Just Chatting for 1h1m34s
 							</p>
 							<h4 id="to-remove-a-shoutout-message">To remove a shoutout message</h4>
 							<p><strong>Usage:</strong> <code>!so remove</code></p>
@@ -317,7 +317,8 @@
 								<li>{user} - Username of the channel getting the shoutout</li>
 							</ul>
 							<p><strong>Example:</strong> <code>!followmsg add Welcome to the channel {user}</code></p>
-							<p><strong>Output when a user follows the channel:</strong> Welcome to the channel @Bottercype</p>
+							<p><strong>Output when a user follows the channel:</strong><br>
+                            Welcome to the channel @Bottercype</p>
 							<h4 id="to-remove-the-follow-message">To remove the follow message</h4>
 							<p><strong>Usage:</strong> <code>!followmsg remove</code></p>
 							<h2 id="submsg">submsg</h2>
@@ -333,7 +334,8 @@
 								<li>{tier} - Tier level of the subscription</li>
 							</ul>
 							<p><strong>Example:</strong> <code>!submsg addmsg Thank you {user} for the tier {tier} sub</code></p>
-							<p><strong>Output when a user subscribes the channel:</strong> Thank you @Bottercype for the tier 3 sub</p>
+							<p><strong>Output when a user subscribes the channel:</strong> <br>
+                            Thank you @Bottercype for the tier 3 sub</p>
 							<h4 id="to-remove-the-standard-sub-message">To remove the standard sub message</h4>
 							<p><strong>Usage:</strong> <code>!submsg removesub</code></p>
 							<hr />
@@ -346,7 +348,8 @@
 								<li>{tier} - Tier level of the subscription</li>
 							</ul>
 							<p><strong>Example:</strong> <code>!submsg addresub Thank you {user} for the {duration} of {tier} resub</code></p>
-							<p><strong>Output when a user resubs the channel:</strong> Thank you @Bottercype for the 69 months of tier 3 resub</p>
+							<p><strong>Output when a user resubs the channel:</strong> <br>
+                            Thank you @Bottercype for the 69 months of tier 3 resub</p>
 							<h4 id="to-remove-the-resub-message">To remove the resub message</h4>
 							<p><strong>Usage:</strong> <code>!submsg removeresub</code></p>
 							<hr />
@@ -367,8 +370,8 @@
 								>
 							</p>
 							<p>
-								<strong>Output when a user gift 69 subs to the channel:</strong> Thank you @Bottercype for the 69 tier 1 gifted subs, they have
-								given a total of 420 subs to the community!
+								<strong>Output when a user gift 69 subs to the channel:</strong> <br>
+                                Thank you @Bottercype for the 69 tier 1 gifted subs, they have given a total of 420 subs to the community!
 							</p>
 							<h4 id="to-remove-the-gift-sub-message">To remove the gift sub message</h4>
 							<p><strong>Usage:</strong> <code>!submsg removegiftsub</code></p>
@@ -385,7 +388,7 @@
                             </ul>
                             <p><strong>Example:</strong>
                             <code>!bitmsg add Thank you {user} for the {bits}bits</code></p>
-                            <p><strong>Output when a user cheer 100bits to the channel:</strong>
+                            <p><strong>Output when a user cheer 100bits to the channel:</strong><br>
                             Thank you @Bottercype for the 100bits</p>
                             <h4 id="to-remove-the-bit-message">To remove the bit message</h4>
                             <p><strong>Usage:</strong>
@@ -403,12 +406,12 @@
                                 <br>
 								<code>!addcommand socials Join my Discord here! https://discord.com</code>
                                 <br>
-								<strong>Output when using !socials:</strong><br>
+								<strong>Output when using !<code>!socials</code>:</strong><br>
 								Join my Discord here! https://discord.com</a>
 							</p>
 							<h2 id="removecommand">removecommand</h2>
 							<hr />
-							<p>Removes a custom command aded via <code>!addcommand</code> from channel.</p>
+							<p>Removes a custom command added via <code>!addcommand</code> from channel.</p>
 							<p><strong>Usage:</strong> <code>!removecommand [command]</code></p>
 							<p><strong>Example:</strong> <code>!removecommand socials</code></p>
 							<h2 id="addrandcommand">addrandcommand</h2>
@@ -421,17 +424,42 @@
                                 <li>{value} - a randomly generated number</li>
                             </ul>
 							<p>
-								<strong>Example:</strong>
-								<code>!addrandcommand cute 0 200 {user} is {value}% cute!</code>
+								<strong>Example:</strong><br>
+								<code>!addrandcommand cute 0 200 {user} is {value}% cute!</code><br>
                                 <br>
-								<strong>Output when using !cute:</strong>
-								@bottercype is 69% cute!
+								<strong>Output when using <code>!cute</code>:</strong><br>
+								@bottercype is 69% cute!<br>
 							</p>
 							<h2 id="removerandcommand">removerandcommand</h2>
 							<hr />
-							<p>Removes a custom rng command aded via <code>!addrandcommand</code> from channel.</p>
+							<p>Removes a custom rng command added via <code>!addrandcommand</code> from channel.</p>
 							<p><strong>Usage:</strong> <code>!removerandcommand [command]</code></p>
 							<p><strong>Example:</strong> <code>!removerandcommand cute</code></p>
+                            <h2 id="addcountercommand">addcountercommand</h2>
+                            <p>Add a custom command that counts when the command is used. Common usage: death counter.</p>
+                            <p><strong>Usage:</strong>
+                            <code>!addcountercommand [command] [message]</code></p>
+                            <p>Variables:</p>
+                            <ul>
+                            <li>{user} - username of the user or mentioned user</li>
+                            <li>{count} - the counted value</li>
+                            </ul>
+                            <p><strong>Example:</strong>
+                            <code>!addcountercommand death Bottercype died {count} times.</code><br><br>
+                            <strong>Output when using <code>!deathadd</code> (Initial count: 0):</strong><br>
+                            Bottercype died 1 times.<br>
+                            <strong>Output when using <code>!deathsub</code> (Initial count: 1):</strong><br>
+                            Bottercype died 0 times.<br>
+                            <strong>Output when using <code>!deathset 69</code> (Initial count: 0):</strong><br>
+                            Bottercype died 69 times.<br>
+                            <strong>Output when using <code>!death</code> (Initial count: 69):</strong><br>
+                            Bottercype died 69 times.</p><br>
+                            <h2 id="removecountercommand">removecountercommand</h2>
+                            <p>Removes a custom counter command added via <code>!addcountercommand</code> from channel.</p>
+                            <p><strong>Usage:</strong> <code>!removecountercommand [command]</code></p>
+                            <p><strong>Example:</strong>
+                            <code>!removecountercommand death</code></p>
+
 						</div>
 					</div>
 				</div>
