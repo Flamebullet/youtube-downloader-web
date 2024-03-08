@@ -116,6 +116,48 @@ app.get('/search', async (req, res) => {
 	return;
 });
 
+app.get('/playlist', async (req, res) => {
+	const { url, video, audio } = req.query;
+	let results;
+
+	function playlistUrlToId(url) {
+		const youtubePlaylistRegex = /^\<?(https?:\/\/)?((w{3}\.)|(music\.))?(youtube\.com\/(playlist\?list\=))(?<urlkey>[\S]{23,41})\>?/gm;
+		const urlkey = youtubePlaylistRegex.exec(url);
+		return urlkey?.groups?.urlkey;
+	}
+
+	let playlist = await youtube.getPlaylist(playlistUrlToId(url)).catch(async (err) => {
+		console.log(err);
+		return res.redirect(`/?err=${encodeURIComponent(err)}`);
+	});
+
+	if (playlist === undefined) return res.redirect(`/?err=${encodeURIComponent(`No playlist found from "${url}"`)}, check that playlist is set to unlisted`);
+
+	if (playlist.continuation) await playlist.next(0);
+
+	results = playlist.videos.items;
+	for (let result of results) {
+		result.client = null;
+		result.thumbnail = result.thumbnails[result.thumbnails.length - 1].url;
+		result.thumbnails = null;
+		result.channel.client = null;
+		result.channel.shorts = null;
+		result.channel.live = null;
+		result.channel.videos = null;
+		result.channel.playlists = null;
+		result.url = `https://www.youtube.com/watch?v=${result.id}`;
+		result.timestamp = secToStr(result.duration);
+	}
+
+	return res.render('playlist', {
+		JSONresults: encodeURIComponent(JSON.stringify({ results })),
+		results: results,
+		video: video,
+		audio: audio,
+		title: playlist.videos.playlist.title
+	});
+});
+
 // Select quality page
 app.get('/download', async (req, res) => {
 	let title, videoFormats;
@@ -154,8 +196,11 @@ app.get('/download', async (req, res) => {
 	}
 
 	try {
+		const youtubePlaylistRegex = /^\<?(https?:\/\/)?((w{3}\.)|(music\.))?(youtube\.com\/(playlist\?list\=))(?<urlkey>[\S]{23,41})\>?/gm;
+		if (url.match(youtubePlaylistRegex))
+			return res.redirect(`/playlist?url=${encodeURIComponent(url)}&video=${encodeURIComponent(videoSelect)}&audio=${encodeURIComponent(audioSelect)}`);
 		// Create the video quality selection dropdown menu
-		const video = await ytdl.getInfo(url).catch((err) => {
+		const video = await ytdl.getInfo(url).catch(() => {
 			return res.redirect(`/search?url=${encodeURIComponent(url)}&video=${encodeURIComponent(videoSelect)}&audio=${encodeURIComponent(audioSelect)}`);
 		});
 		if (!video) return;

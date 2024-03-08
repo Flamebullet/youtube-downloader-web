@@ -1,0 +1,54 @@
+.title {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.description {
+	display: -webkit-box;
+	-webkit-line-clamp: 1;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: 0.9rem;
+	padding-top: 0;
+}
+
+.thumbnail-container {
+	display: block;
+	position: relative;
+	cursor: pointer;
+}
+.thumbnail {
+	max-width: 356px;
+	width: 30%;
+	height: auto;
+	border-radius: 10px;
+}
+.thumbnail img {
+	height: auto;
+	aspect-ratio: 16/9;
+	border-radius: 10px;
+}
+.thumbnail-overlay {
+	position: absolute;
+	bottom: 3px;
+	right: 3px;
+	width: fit-content;
+	border-radius: 5px;
+	height: fit-content;
+	font-size: 0.8rem;
+	background-color: rgba(0, 0, 0, 0.8);
+}
+.thumbnail-timestamp {
+	color: white;
+	padding: 2px 4px;
+	margin: 0px;
+}
+
+#result-table {
+	font-family: arial, sans-serif;
+	width: 100%;
+	border-collapse: separate;
+}

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0" /> -->
+		<meta name="viewport" content="width=device-width, initial-scale=0.5" />
+		<link rel="icon" href="/img/youtube-icon.ico" />
+		<title>Search</title>
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+			integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+			crossorigin="anonymous"
+		/>
+        <style>
+            /* Style for the modal */
+            .alertmodal {
+                display: block; /* Modal opens by default */
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 1;
+            }
+            .alert-modal-content {
+                background-color: rgba(0, 0, 0, 1);
+                width: 600px;
+                margin: 10% auto;
+                padding: 20px;
+                border-radius: 5px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            }
+
+            .modal {
+                display: block; /* Modal opens by default */
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 1;
+            }
+
+            .modal-content {
+                background-color: rgba(0, 0, 0, 1);
+                width: 600px;
+                margin: 10% auto;
+                padding: 20px;
+                border-radius: 5px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            }
+        </style>
+        <script>
+            // Wait for content to load
+            document.addEventListener('DOMContentLoaded', function (event) {
+                document.getElementById('myModal').style.display = 'none';
+                // Get all buttons with IDs starting with 'download'
+                const buttons = document.querySelectorAll('[id^="download"]');
+
+                // Add a click event listener to each button
+                buttons.forEach((button) => {
+                    button.addEventListener('click', async (event) => {
+                        const idNumber = button.id.replace('download', '');
+
+                        window.onbeforeunload = function () {
+                            return 'Download is in progress, are you sure you want to leave?';
+                        };
+                        event.preventDefault();
+                        function wait(ms) {
+                            return new Promise((resolve) => setTimeout(resolve, ms));
+                        }
+
+                        const uid = Date.now().toString(36) + Math.random().toString(36).substr(2);
+                        const results = JSON.parse(decodeURIComponent(`<%- JSONresults %>`));
+                        console.log(results.results[0])
+                        const url = results.results[parseInt(idNumber)].url;
+
+                        // console.log(url)
+
+                        // Get download data
+                        fetch(`${window.location.origin}/download?url=${url}&audio=on&video=off&videoItag=null&dl=true&uid=${uid}`, {
+                            method: 'GET'
+                        });
+
+                        let data2;
+                        // Open the progress bar modal
+                        document.getElementById('myModal').style.display = 'block';
+
+                        // Loop progressbar until download complete
+                        let progressloop = true;
+                        while (progressloop) {
+                            const response2 = await fetch(`${window.location.origin}/download/progress?uid=${uid}`, {
+                                method: 'GET'
+                            });
+                            data2 = await response2.json();
+
+                            if (data2.progress.startsWith('Done')) {
+                                progressloop = false;
+                                document.getElementById('download-progress-bar').innerText = 'Download Complete!';
+                            } else {
+                                document.getElementById('download-progress-bar').innerText = data2.progress;
+                            }
+                            wait(100);
+                        }
+
+                        window.onbeforeunload = null;
+
+                        // Download file and redirect back to home page
+                        var newWin = window.open(`${window.location.origin}/download/download?file=${data2.progress.slice(5)}`);
+
+                        if (!newWin || newWin.closed || typeof newWin.closed == 'undefined') {
+                            //POPUP BLOCKED
+                            alert('Please allow popups for this website to download the file. Refresh the page after allowing popups.');
+                        }
+
+                        // Show back button and hide modal
+						document.getElementById('myModal').style.display = 'none';
+                    });
+                });
+
+                let title = '<%= title %>';
+                console.log(title)
+                document.title = `${title} - Playlist`;
+            });
+        </script>
+	</head>
+	<body id="body">
+		<%- include("partials/header") %>
+		<div class="container my-5" style="padding-bottom: 30px">
+            <% if (video == 'on') { %>
+                <div id="videoAlertModal" class="alertmodal" onclick="closeAlertModal()">
+                    <div class="alert-modal-content">
+                        <h2>Note! Video not available for playlist download!</h2>
+                        <p>Click anywhere outside this box to continue.</p>
+                    </div>
+                </div>
+            
+                <script>
+                    // Close the modal when clicking outside
+                    function closeAlertModal() {
+                        document.getElementById('videoAlertModal').style.display = 'none';
+                    }
+                </script>
+            <% } %>
+			<!-- Main content -->
+			<table id="result-table">
+                <tbody>
+                    <!-- The Modal -->
+                    <div id="myModal" class="modal">
+                        <!-- Modal content -->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4>Downloading...</h4>
+                            </div>
+                            <hr />
+                            <div class="modal-body" id="download-progress-bar"></div>
+                        </div>
+                    </div>
+					<% function convertNum(num) { let result; if (num >= 1000000) { result = (num / 1000000).toFixed(1) + 'M'; } else if (num >= 1000) { result
+					= (num / 1000).toFixed(1) + 'K'; } else { result = num.toString(); } return result.replace('.0', ''); } %> <% for (var i in results) { %>
+					<tr id="search-table">
+                        <td style="vertical-align: top">
+								<p style="font-size: 0.9rem; margin-bottom: 5px">
+                                    <%= parseInt(i) +1 %>.
+								</p>
+						</td>
+						<td class="thumbnail">
+							<div class="thumbnail-container">
+								<a href="download?url=<%=results[i].url %>&audio=<%= audio %>&video=<%= video %>">
+									<img src="<%= results[i].thumbnail %>" alt="<%= results[i].title %>" />
+									<div class="thumbnail-overlay">
+										<p class="thumbnail-timestamp"><%= results[i].timestamp %></p>
+									</div>
+								</a>
+							</div>
+						</td>
+						<td style="vertical-align: top">
+							<div>
+								<a href="download?url=<%=results[i].url %>&audio=<%= audio %>&video=<%= video %>" style="text-decoration: none">
+									<p class="title" style="font-weight: bold; font-size: 1.3rem; margin-bottom: 2px; color: white"><%= results[i].title %></p>
+								</a>
+								
+								<p style="font-size: 0.9rem; margin-bottom: 5px">
+                                    <table>
+                                        <td style="vertical-align: middle; padding-left: 0px;">
+                                            <a href="https://www.youtube.com/channel/<%= results[i].channel.id %>" style="text-decoration: none; color: white">
+                                                <div style="margin: 0 0 0 0px;display:flex">
+                                                    <div style="overflow: hidden;max-width: 300px;text-overflow: ellipsis;font-size: 1rem"><%= results[i].channel.name %></div><% if (results[i].verified) { %><div style="width: 16px; height: 16px; fill: currentcolor; align-self: center; padding-left:3px;"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" focusable="false" style="pointer-events: none; display: block; width: 100%; height: 100%;"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zM9.8 17.3l-4.2-4.1L7 11.8l2.8 2.7L17 7.4l1.4 1.4-8.6 8.5z"></path></svg></div><% } %>
+                                                </div>
+                                            </a>
+                                        </td>
+                                    </table>
+								</p>
+							</div>
+						</td>
+                        <td style="vertical-align: top">
+                            <!-- download form -->
+                            <div>
+                                <button class="search-download-button" id="download<%=parseInt(i)%>" style="float: right !important">Download</button>
+                            </div>
+						</td>
+					</tr>
+					<% } %>
+				</tbody>
+			</table>
+		</div>
+		<link rel="stylesheet" href="/css/styles.css" />
+		<link rel="stylesheet" href="/css/playlist.css" />
+	</body>
+	<script>
+		document.title = `${url} - Search`;
+	</script>
+</html>

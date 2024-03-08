@@ -123,7 +123,11 @@
 							//POPUP BLOCKED
 							alert('Please allow popups for this website to download the file. Refresh the page after allowing popups.');
 						}
-						window.location.href = `/`;
+
+						// Show back button and hide modal
+						if (document.getElementById('video-quality')) document.getElementById('video-quality').style.display = 'block';
+						document.getElementById('videoqualitydownload').style.display = 'block';
+						document.getElementById('myModal').style.display = 'none';
 					}
 				});
 
