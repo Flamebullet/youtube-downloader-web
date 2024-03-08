@@ -356,7 +356,7 @@ app.get('/download', async (req, res) => {
 					videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url,
 					`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`
 				).then(async () => {
-					if (!fs.existsSync(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`)) {
+					while (!fs.existsSync(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`)) {
 						setTimeout(async () => {}, 1000);
 					}
 
