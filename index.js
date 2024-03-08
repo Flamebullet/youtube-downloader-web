@@ -355,7 +355,11 @@ app.get('/download', async (req, res) => {
 				await downloadImage(
 					videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url,
 					`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`
-				).then(() => {
+				).then(async () => {
+					if (!fs.existsSync(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`)) {
+						setTimeout(() => {}, 1000);
+					}
+
 					const ffmpegProcess = cp.spawn(
 						ffmpeg,
 						[
