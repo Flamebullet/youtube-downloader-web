@@ -358,10 +358,9 @@ app.get('/download', async (req, res) => {
 						videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url,
 						`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`
 					);
-					console.log(videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url);
+					setTimeout(() => {}, 1000);
+					console.log('here');
 				}
-
-				console.log(fs.existsSync(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`));
 
 				const ffmpegProcess = cp.spawn(
 					ffmpeg,
