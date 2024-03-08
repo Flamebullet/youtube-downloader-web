@@ -357,8 +357,10 @@ app.get('/download', async (req, res) => {
 					`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`
 				).then(async () => {
 					if (!fs.existsSync(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`)) {
-						setTimeout(() => {}, 1000);
+						setTimeout(async () => {}, 1000);
 					}
+
+					console.log(fs.existsSync(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`));
 
 					const ffmpegProcess = cp.spawn(
 						ffmpeg,
