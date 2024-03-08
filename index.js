@@ -13,6 +13,7 @@ const { spotifyId, spotifySecret, databaseUrl } = require('./cred.js');
 const spotifyInfo = require('spotify-info');
 spotifyInfo.setApiCredentials(spotifyId, spotifySecret);
 const postgres = require('postgres');
+const axios = require('axios');
 
 // progress bar object
 const progbarobj = {};
@@ -50,6 +51,16 @@ function secToStr(sec) {
 	});
 
 	return `${hours}:${minutes}:${seconds}`.replace(/^(?:00:)?0?/, '');
+}
+
+async function downloadImage(url, path) {
+	axios({
+		method: 'get',
+		url: url,
+		responseType: 'stream'
+	}).then(function (response) {
+		response.data.pipe(fs.createWriteStream(path));
+	});
 }
 
 // OUR ROUTES WILL GO HERE
@@ -296,50 +307,62 @@ app.get('/download', async (req, res) => {
 			} else if (audioSelect == 'on') {
 				if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
 				// output audio as mp3 file
-				const ffmpegProcess = cp.spawn(
-					ffmpeg,
-					[
-						// Remove ffmpeg's console spamming
-						'-loglevel',
-						'8',
-						'-hide_banner',
-						// Redirect/Enable progress messages
-						'-progress',
-						'pipe:3',
-						// Set inputs
-						'-i',
-						'pipe:4',
-						// Map audio & video from streams
-						'-map',
-						'0:a',
-						'-codec:a',
-						'libmp3lame',
-						'-qscale:a',
-						'0',
-						'-y',
-						filename
-					],
-					{
-						windowsHide: true,
-						stdio: [
-							/* Standard: stdin, stdout, stderr */
-							'inherit',
-							'inherit',
-							'inherit',
-							/* Custom: pipe:3, pipe:4, pipe:5 */
-							'pipe',
-							'pipe'
-						]
-					}
-				);
+				await downloadImage(
+					videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url,
+					`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`
+				).then(() => {
+					const ffmpegProcess = cp.spawn(
+						ffmpeg,
+						[
+							// Remove ffmpeg's console spamming
+							'-loglevel',
+							'8',
+							'-hide_banner',
+							// Redirect/Enable progress messages
+							'-progress',
+							'pipe:3',
+							// Set inputs
+							'-i',
+							'pipe:4',
+							// Map audio & video from streams
+							'-i',
+							`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`,
+							'-map',
+							'0',
+							'-map',
+							'1',
+							'-codec:a',
+							'libmp3lame',
+							'-qscale:a',
+							'0',
+							'-y',
+							filename
+						],
+						{
+							windowsHide: true,
+							stdio: [
+								/* Standard: stdin, stdout, stderr */
+								'inherit',
+								'inherit',
+								'inherit',
+								/* Custom: pipe:3, pipe:4, pipe:5 */
+								'pipe',
+								'pipe'
+							]
+						}
+					);
 
-				ffmpegProcess.on('close', async () => {
-					clearInterval(progressbarHandle);
-					Object.assign(progbarobj, { [uid]: `Done ${encodeURIComponent(filename)}` });
-					return res.status(200).json({ file: encodeURIComponent(filename) });
+					ffmpegProcess.on('close', async () => {
+						clearInterval(progressbarHandle);
+						Object.assign(progbarobj, { [uid]: `Done ${encodeURIComponent(filename)}` });
+						fs.unlink(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`, () => {
+							return;
+						});
+						return res.status(200).json({ file: encodeURIComponent(filename) });
+					});
+
+					audio.pipe(ffmpegProcess.stdio[4]);
 				});
-
-				audio.pipe(ffmpegProcess.stdio[4]);
 			} else if (videoSelect == 'on') {
 				if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
 				video.pipe(fs.createWriteStream(filename));
