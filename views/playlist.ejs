@@ -61,6 +61,61 @@
                 // Get all buttons with IDs starting with 'download'
                 const buttons = document.querySelectorAll('[id^="download"]');
 
+                document.getElementById('dlall').addEventListener('click', async function() {
+                    window.onbeforeunload = function () {
+                        return 'Download is in progress, are you sure you want to leave?';
+                    };
+                    event.preventDefault();
+                    function wait(ms) {
+                        return new Promise((resolve) => setTimeout(resolve, ms));
+                    }
+
+                    const results = JSON.parse(decodeURIComponent(`<%- JSONresults %>`));
+                    for (let i = 0; i < results.results.length; i++){
+                        const uid = Date.now().toString(36) + Math.random().toString(36).substr(2);
+                        const url = results.results[i].url;
+    
+                        // Get download data
+                        fetch(`${window.location.origin}/download?url=${url}&audio=on&video=off&videoItag=null&dl=true&uid=${uid}`, {
+                            method: 'GET'
+                        });
+    
+                        let data2;
+                        // Open the progress bar modal
+                        document.getElementById('myModal').style.display = 'block';
+    
+                        // Loop progressbar until download complete
+                        let progressloop = true;
+                        while (progressloop) {
+                            const response2 = await fetch(`${window.location.origin}/download/progress?uid=${uid}`, {
+                                method: 'GET'
+                            });
+                            data2 = await response2.json();
+    
+                            if (data2.progress.startsWith('Done')) {
+                                progressloop = false;
+                                document.getElementById('download-progress-bar').innerText = 'Download Complete!';
+                            } else {
+                                document.getElementById('download-progress-bar').innerText = data2.progress;
+                            }
+                            await wait(100);
+                        }
+    
+                        
+                        // Download file and redirect back to home page
+                        var newWin = window.open(`${window.location.origin}/download/download?file=${data2.progress.slice(5)}`);
+                        
+                        if (!newWin || newWin.closed || typeof newWin.closed == 'undefined') {
+                            //POPUP BLOCKED
+                            alert('Please allow popups for this website to download the file. Refresh the page after allowing popups.');
+                        }
+                    }
+                    window.onbeforeunload = null;
+
+                    // Show back button and hide modal
+                    document.getElementById('myModal').style.display = 'none';
+                });
+
                 // Add a click event listener to each button
                 buttons.forEach((button) => {
                     button.addEventListener('click', async (event) => {
@@ -76,10 +131,7 @@
 
                         const uid = Date.now().toString(36) + Math.random().toString(36).substr(2);
                         const results = JSON.parse(decodeURIComponent(`<%- JSONresults %>`));
-                        console.log(results.results[0])
                         const url = results.results[parseInt(idNumber)].url;
-
-                        // console.log(url)
 
                         // Get download data
                         fetch(`${window.location.origin}/download?url=${url}&audio=on&video=off&videoItag=null&dl=true&uid=${uid}`, {
@@ -104,7 +156,7 @@
                             } else {
                                 document.getElementById('download-progress-bar').innerText = data2.progress;
                             }
-                            wait(100);
+                            await wait(100);
                         }
 
                         window.onbeforeunload = null;
@@ -123,7 +175,6 @@
                 });
 
                 let title = '<%= title %>';
-                console.log(title)
                 document.title = `${title} - Playlist`;
             });
         </script>
@@ -160,8 +211,21 @@
                             <div class="modal-body" id="download-progress-bar"></div>
                         </div>
                     </div>
-					<% function convertNum(num) { let result; if (num >= 1000000) { result = (num / 1000000).toFixed(1) + 'M'; } else if (num >= 1000) { result
-					= (num / 1000).toFixed(1) + 'K'; } else { result = num.toString(); } return result.replace('.0', ''); } %> <% for (var i in results) { %>
+                    <tr id="search-table">
+                        <td style="vertical-align: top">
+						</td>
+						<td class="thumbnail">
+						</td>
+						<td style="vertical-align: top">
+						</td>
+                        <td style="vertical-align: top">
+                            <!-- download form -->
+                            <div>
+                                <button class="search-download-button" id="dlall" style="float: right !important">Download All</button>
+                            </div>
+						</td>
+					</tr>
+					<% for (var i in results) { %>
 					<tr id="search-table">
                         <td style="vertical-align: top">
 								<p style="font-size: 0.9rem; margin-bottom: 5px">
