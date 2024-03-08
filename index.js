@@ -54,13 +54,14 @@ function secToStr(sec) {
 }
 
 async function downloadImage(url, path) {
-	axios({
+	await axios({
 		method: 'get',
 		url: url,
 		responseType: 'stream'
 	}).then(function (response) {
 		response.data.pipe(fs.createWriteStream(path));
 	});
+	return;
 }
 
 // OUR ROUTES WILL GO HERE
@@ -352,68 +353,67 @@ app.get('/download', async (req, res) => {
 			} else if (audioSelect == 'on') {
 				if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
 				// output audio as mp3 file
-				await downloadImage(
-					videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url,
-					`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`
-				).then(async () => {
-					while (!fs.existsSync(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`)) {
-						setTimeout(async () => {}, 1000);
-					}
-
-					console.log(fs.existsSync(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`));
-
-					const ffmpegProcess = cp.spawn(
-						ffmpeg,
-						[
-							// Remove ffmpeg's console spamming
-							'-loglevel',
-							'8',
-							'-hide_banner',
-							// Redirect/Enable progress messages
-							'-progress',
-							'pipe:3',
-							// Set inputs
-							'-i',
-							'pipe:4',
-							// Map audio & video from streams
-							'-i',
-							`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`,
-							'-map',
-							'0',
-							'-map',
-							'1',
-							'-codec:a',
-							'libmp3lame',
-							'-qscale:a',
-							'0',
-							'-y',
-							filename
-						],
-						{
-							windowsHide: true,
-							stdio: [
-								/* Standard: stdin, stdout, stderr */
-								'inherit',
-								'inherit',
-								'inherit',
-								/* Custom: pipe:3, pipe:4, pipe:5 */
-								'pipe',
-								'pipe'
-							]
-						}
+				while (!fs.existsSync(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`)) {
+					await downloadImage(
+						videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url,
+						`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`
 					);
+					console.log(videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url);
+				}
 
-					ffmpegProcess.on('close', async () => {
-						clearInterval(progressbarHandle);
-						Object.assign(progbarobj, { [uid]: `Done ${encodeURIComponent(filename)}` });
-						fs.unlink(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`, () => {
-							return;
-						});
-						return res.status(200).json({ file: encodeURIComponent(filename) });
+				console.log(fs.existsSync(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`));
+
+				const ffmpegProcess = cp.spawn(
+					ffmpeg,
+					[
+						// Remove ffmpeg's console spamming
+						'-loglevel',
+						'8',
+						'-hide_banner',
+						// Redirect/Enable progress messages
+						'-progress',
+						'pipe:3',
+						// Set inputs
+						'-i',
+						'pipe:4',
+						// Map audio & video from streams
+						'-i',
+						`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`,
+						'-map',
+						'0',
+						'-map',
+						'1',
+						'-codec:a',
+						'libmp3lame',
+						'-qscale:a',
+						'0',
+						'-y',
+						filename
+					],
+					{
+						windowsHide: true,
+						stdio: [
+							/* Standard: stdin, stdout, stderr */
+							'inherit',
+							'inherit',
+							'inherit',
+							/* Custom: pipe:3, pipe:4, pipe:5 */
+							'pipe',
+							'pipe'
+						]
+					}
+				);
+
+				ffmpegProcess.on('close', async () => {
+					clearInterval(progressbarHandle);
+					Object.assign(progbarobj, { [uid]: `Done ${encodeURIComponent(filename)}` });
+					fs.unlink(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`, () => {
+						return;
 					});
-
-					audio.pipe(ffmpegProcess.stdio[4]);
+					return res.status(200).json({ file: encodeURIComponent(filename) });
 				});
+
+				audio.pipe(ffmpegProcess.stdio[4]);
 			} else if (videoSelect == 'on') {
 				if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
 				video.pipe(fs.createWriteStream(filename));
