@@ -354,11 +354,11 @@ app.get('/download', async (req, res) => {
 				if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
 				// output audio as mp3 file
 				while (!fs.existsSync(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`)) {
+					if (fs.existsSync(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`)) break;
 					await downloadImage(
 						videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url,
 						`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`
 					);
-					setTimeout(() => {}, 1000);
 					console.log('here');
 				}
 
