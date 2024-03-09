@@ -153,7 +153,6 @@ app.get('/playlist', async (req, res) => {
 			result.timestamp = secToStr(result.duration);
 
 			results[index] = result;
-			console.log(result.title, result.viewCount, result.uploadDate);
 		})
 	);
 
