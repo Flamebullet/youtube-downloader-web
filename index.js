@@ -357,6 +357,7 @@ app.get('/download', async (req, res) => {
 					videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url,
 					`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`
 				);
+				console.log();
 
 				const ffmpegProcess = cp.spawn(
 					ffmpeg,
@@ -382,6 +383,12 @@ app.get('/download', async (req, res) => {
 						'libmp3lame',
 						'-qscale:a',
 						'0',
+						'-metadata',
+						`title=${videoDetails.title}`, // Set track name (title)
+						'-metadata',
+						`artist=${videoDetails.ownerChannelName}`, // Set performer (artist)
+						'-metadata',
+						`album=${videoDetails.title}`, // Set album name
 						'-y',
 						filename
 					],
