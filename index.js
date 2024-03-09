@@ -7,7 +7,7 @@ const ytdl = require('ytdl-core');
 const fs = require('fs');
 const cp = require('child_process');
 const ffmpeg = require('ffmpeg-static');
-const { Client } = require('./youtubei');
+const { Client } = require('youtubei');
 const youtube = new Client();
 const { spotifyId, spotifySecret, databaseUrl } = require('./cred.js');
 const spotifyInfo = require('spotify-info');
@@ -119,7 +119,6 @@ app.get('/search', async (req, res) => {
 
 app.get('/playlist', async (req, res) => {
 	const { url, video, audio } = req.query;
-	let results;
 
 	function playlistUrlToId(url) {
 		const youtubePlaylistRegex = /^\<?(https?:\/\/)?((w{3}\.)|(music\.))?(youtube\.com\/(playlist\?list\=))(?<urlkey>[\S]{23,41})\>?/gm;
@@ -135,20 +134,28 @@ app.get('/playlist', async (req, res) => {
 	if (playlist === undefined) return res.redirect(`/?err=${encodeURIComponent(`No playlist found from "${url}"`)}, check that playlist is set to unlisted`);
 
 	if (playlist.continuation) await playlist.next(0);
+	const results = new Array(playlist.videos.items.length);
 
-	results = playlist.videos.items;
-	for (let result of results) {
-		result.client = null;
-		result.thumbnail = result.thumbnails[result.thumbnails.length - 1].url;
-		result.thumbnails = null;
-		result.channel.client = null;
-		result.channel.shorts = null;
-		result.channel.live = null;
-		result.channel.videos = null;
-		result.channel.playlists = null;
-		result.url = `https://www.youtube.com/watch?v=${result.id}`;
-		result.timestamp = secToStr(result.duration);
-	}
+	await Promise.all(
+		playlist.videos.items.map(async (item, index) => {
+			var result = await youtube.getVideo(item.id);
+			result.client = null;
+			result.related = null;
+			result.comments = null;
+			result.thumbnail = result.thumbnails[result.thumbnails.length - 1].url;
+			result.thumbnails = null;
+			result.channel.client = null;
+			result.channel.shorts = null;
+			result.channel.live = null;
+			result.channel.videos = null;
+			result.channel.playlists = null;
+			result.url = `https://www.youtube.com/watch?v=${result.id}`;
+			result.timestamp = secToStr(result.duration);
+
+			results[index] = result;
+			console.log(result.title, result.viewCount, result.uploadDate);
+		})
+	);
 
 	return res.render('playlist', {
 		JSONresults: encodeURIComponent(JSON.stringify({ results })),
