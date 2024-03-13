@@ -217,7 +217,7 @@ app.get('/download', async (req, res) => {
 			video.response.engagementPanels[1].engagementPanelSectionListRenderer.content.structuredDescriptionContentRenderer.items[2]
 				.horizontalCardListRenderer?.cards;
 		const artist =
-			songCard.length == 1 && songCard[0].videoAttributeViewModel.subtitle.toLowerCase() != videoDetails.ownerChannelName
+			songCard?.length == 1 && songCard[0].videoAttributeViewModel.subtitle.toLowerCase() != videoDetails.ownerChannelName
 				? `${videoDetails.ownerChannelName}, ${songCard[0].videoAttributeViewModel.subtitle}`
 				: videoDetails.ownerChannelName;
 
