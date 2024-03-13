@@ -131,8 +131,15 @@
 					}
 				});
 
-				let title = '<%= title %>';
-				document.title = `${title} - Download`;
+				let title = decodeURIComponent('<%= title %>');
+
+				function decodeHtml(html) {
+					var txt = document.createElement('textarea');
+					txt.innerHTML = html;
+					return txt.value;
+				}
+
+				document.title = `${decodeHtml(title)} - Download`;
 
 				// add channel name
 				let videoDetails = JSON.parse(decodeURIComponent(`<%- videoDetails %>`));

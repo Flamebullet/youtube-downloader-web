@@ -175,7 +175,14 @@
                 });
 
                 let title = '<%= title %>';
-                document.title = `${title} - Playlist`;
+
+                function decodeHtml(html) {
+					var txt = document.createElement('textarea');
+					txt.innerHTML = html;
+					return txt.value;
+				}
+
+                document.title = `${decodeHtml(title)} - Playlist`;
             });
         </script>
 	</head>
@@ -299,7 +306,4 @@
 		<link rel="stylesheet" href="/css/styles.css" />
 		<link rel="stylesheet" href="/css/playlist.css" />
 	</body>
-	<script>
-		document.title = `${url} - Search`;
-	</script>
 </html>
