@@ -224,11 +224,17 @@ app.get('/download', async (req, res) => {
 		if (!video) return;
 
 		const videoDetails = video.videoDetails;
+		let target = ' - Topic';
+		let pos = videoDetails.ownerChannelName.lastIndexOf(target);
+		if (pos !== -1) {
+			videoDetails.ownerChannelName = videoDetails.ownerChannelName.substring(0, pos) + videoDetails.ownerChannelName.substring(pos + target.length);
+		}
+
 		const songCard =
 			video.response.engagementPanels[1].engagementPanelSectionListRenderer.content.structuredDescriptionContentRenderer?.items[2]
 				.horizontalCardListRenderer?.cards;
 		const artist =
-			songCard?.length == 1 && songCard[0].videoAttributeViewModel.subtitle.toLowerCase() != videoDetails.ownerChannelName
+			songCard?.length == 1 && songCard[0].videoAttributeViewModel.subtitle.toLowerCase() != videoDetails.ownerChannelName.toLowerCase()
 				? `${videoDetails.ownerChannelName}, ${songCard[0].videoAttributeViewModel.subtitle}`
 				: videoDetails.ownerChannelName;
 
