@@ -213,6 +213,13 @@ app.get('/download', async (req, res) => {
 		if (!video) return;
 
 		const videoDetails = video.videoDetails;
+		const songCard =
+			video.response.engagementPanels[1].engagementPanelSectionListRenderer.content.structuredDescriptionContentRenderer.items[2]
+				.horizontalCardListRenderer?.cards;
+		const artist =
+			songCard.length == 1 && songCard[0].videoAttributeViewModel.subtitle.toLowerCase() != videoDetails.ownerChannelName
+				? `${videoDetails.ownerChannelName}, ${songCard[0].videoAttributeViewModel.subtitle}`
+				: videoDetails.ownerChannelName;
 
 		if ((videoDetails.isLiveContent || videoDetails.isLive) && videoDetails.liveBroadcastDetails.isLiveNow)
 			return res.redirect(`/?err=${encodeURIComponent('Selected video is a live stream, please select a different video.')}`);
@@ -363,7 +370,6 @@ app.get('/download', async (req, res) => {
 					videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url,
 					`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`
 				);
-				console.log();
 
 				const ffmpegProcess = cp.spawn(
 					ffmpeg,
@@ -392,7 +398,7 @@ app.get('/download', async (req, res) => {
 						'-metadata',
 						`title=${videoDetails.title}`, // Set track name (title)
 						'-metadata',
-						`artist=${videoDetails.ownerChannelName}`, // Set performer (artist)
+						`artist=${artist}`, // Set performer (artist)
 						'-metadata',
 						`album=${videoDetails.title}`, // Set album name
 						'-y',
