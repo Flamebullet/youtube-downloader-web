@@ -53,6 +53,10 @@ function secToStr(sec) {
 	return `${hours}:${minutes}:${seconds}`.replace(/^(?:00:)?0?/, '');
 }
 
+function sleep(ms) {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function downloadImage(url, path) {
 	await axios({
 		method: 'get',
@@ -138,10 +142,6 @@ app.get('/playlist', async (req, res) => {
 
 	await Promise.all(
 		playlist.videos.items.map(async (item, index) => {
-			function sleep(ms) {
-				return new Promise((resolve) => setTimeout(resolve, ms));
-			}
-
 			while (true) {
 				try {
 					var result = await youtube.getVideo(item.id);
@@ -225,7 +225,7 @@ app.get('/download', async (req, res) => {
 
 		const videoDetails = video.videoDetails;
 		const songCard =
-			video.response.engagementPanels[1].engagementPanelSectionListRenderer.content.structuredDescriptionContentRenderer.items[2]
+			video.response.engagementPanels[1].engagementPanelSectionListRenderer.content.structuredDescriptionContentRenderer?.items[2]
 				.horizontalCardListRenderer?.cards;
 		const artist =
 			songCard?.length == 1 && songCard[0].videoAttributeViewModel.subtitle.toLowerCase() != videoDetails.ownerChannelName
