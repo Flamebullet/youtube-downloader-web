@@ -7,9 +7,8 @@ const ytdl = require('ytdl-core');
 const fs = require('fs');
 const cp = require('child_process');
 const ffmpeg = require('ffmpeg-static');
-const { Client, MusicClient } = require('youtubei');
+const { Client } = require('youtubei');
 const youtube = new Client();
-const music = new MusicClient();
 const { spotifyId, spotifySecret, databaseUrl } = require('./cred.js');
 const spotifyInfo = require('spotify-info');
 spotifyInfo.setApiCredentials(spotifyId, spotifySecret);
@@ -240,12 +239,7 @@ app.get('/download', async (req, res) => {
 		const videoDetails = video.videoDetails;
 		let target = ' - Topic';
 		let pos = videoDetails.ownerChannelName.lastIndexOf(target);
-		let musicdetail;
 		if (pos !== -1) {
-			musicdetail = (await music.search(`${videoDetails.title} - ${videoDetails.ownerChannelName}`))[0].items[0].thumbnails[0].url.replace(
-				'=w60-h60-l90-rj',
-				'=w720-h720-l90-rj'
-			);
 			videoDetails.ownerChannelName = videoDetails.ownerChannelName.substring(0, pos) + videoDetails.ownerChannelName.substring(pos + target.length);
 		}
 
@@ -402,14 +396,10 @@ app.get('/download', async (req, res) => {
 			} else if (audioSelect == 'on') {
 				if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
 				// output audio as mp3 file
-				if (musicdetail != undefined) {
-					await downloadImage(musicdetail, `${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`);
-				} else {
-					await downloadImage(
-						videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url,
-						`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`
-					);
-				}
+				await downloadImage(
+					videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url,
+					`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`
+				);
 
 				const ffmpegProcess = cp.spawn(
 					ffmpeg,
