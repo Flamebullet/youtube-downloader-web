@@ -102,8 +102,6 @@
 			</td>
 			<td class="header-search-bar" style="width: 100%" style="left: -50px" id="search-bar">
 				<form action="/download" id="header-search-form">
-					<input type="checkbox" id="audio" name="audio" checked hidden />
-					<input type="checkbox" id="video" name="video" checked hidden />
 					<div class="search-container">
 						<div id="search">
 							<svg
@@ -145,8 +143,24 @@
 						const audio = urlParams.get('audio');
 						const video = urlParams.get('video');
 						const url = urlParams.get('url');
-						audio === 'on' ? (document.getElementById('audio').checked = true) : (document.getElementById('audio').checked = false);
-						video === 'on' ? (document.getElementById('video').checked = true) : (document.getElementById('video').checked = false);
+						if (audio === 'on') {
+							document
+								.getElementById('header-search-form')
+								.insertAdjacentHTML('beforeend', '<input type="checkbox" id="audio" name="audio" checked hidden />');
+						} else {
+							document
+								.getElementById('header-search-form')
+								.insertAdjacentHTML('beforeend', '<input type="checkbox" id="audio" name="audio" hidden />');
+						}
+						if (video === 'on') {
+							document
+								.getElementById('header-search-form')
+								.insertAdjacentHTML('beforeend', '<input type="checkbox" id="video" name="video" checked hidden />');
+						} else {
+							document
+								.getElementById('header-search-form')
+								.insertAdjacentHTML('beforeend', '<input type="checkbox" id="video" name="video" hidden />');
+						}
 						document.getElementById('search-box').value = url;
 						document.getElementById('search-icon').style.display = 'none';
 

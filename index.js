@@ -138,21 +138,32 @@ app.get('/playlist', async (req, res) => {
 
 	await Promise.all(
 		playlist.videos.items.map(async (item, index) => {
-			var result = await youtube.getVideo(item.id);
-			result.client = null;
-			result.related = null;
-			result.comments = null;
-			result.thumbnail = result.thumbnails[result.thumbnails.length - 1].url;
-			result.thumbnails = null;
-			result.channel.client = null;
-			result.channel.shorts = null;
-			result.channel.live = null;
-			result.channel.videos = null;
-			result.channel.playlists = null;
-			result.url = `https://www.youtube.com/watch?v=${result.id}`;
-			result.timestamp = secToStr(result.duration);
+			function sleep(ms) {
+				return new Promise((resolve) => setTimeout(resolve, ms));
+			}
 
-			results[index] = result;
+			while (true) {
+				try {
+					var result = await youtube.getVideo(item.id);
+					result.client = null;
+					result.related = null;
+					result.comments = null;
+					result.thumbnail = result.thumbnails[result.thumbnails.length - 1].url;
+					result.thumbnails = null;
+					result.channel.client = null;
+					result.channel.shorts = null;
+					result.channel.live = null;
+					result.channel.videos = null;
+					result.channel.playlists = null;
+					result.url = `https://www.youtube.com/watch?v=${result.id}`;
+					result.timestamp = secToStr(result.duration);
+
+					results[index] = result;
+					break;
+				} catch (err) {
+					await sleep(1000);
+				}
+			}
 		})
 	);
 
