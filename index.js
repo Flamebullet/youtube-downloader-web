@@ -7,8 +7,9 @@ const ytdl = require('ytdl-core');
 const fs = require('fs');
 const cp = require('child_process');
 const ffmpeg = require('ffmpeg-static');
-const { Client } = require('youtubei');
+const { Client, MusicClient } = require('youtubei');
 const youtube = new Client();
+const music = new MusicClient();
 const { spotifyId, spotifySecret, databaseUrl } = require('./cred.js');
 const spotifyInfo = require('spotify-info');
 spotifyInfo.setApiCredentials(spotifyId, spotifySecret);
@@ -55,6 +56,19 @@ function secToStr(sec) {
 
 function sleep(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function convertNum(num) {
+	let result;
+	if (num >= 1000000) {
+		result = (num / 1000000).toFixed(1) + 'M';
+	} else if (num >= 1000) {
+		result = (num / 1000).toFixed(1) + 'K';
+	} else {
+		result = num.toString();
+	}
+	// Remove .0 from the result
+	return result.replace('.0', '');
 }
 
 async function downloadImage(url, path) {
@@ -226,7 +240,12 @@ app.get('/download', async (req, res) => {
 		const videoDetails = video.videoDetails;
 		let target = ' - Topic';
 		let pos = videoDetails.ownerChannelName.lastIndexOf(target);
+		let musicdetail;
 		if (pos !== -1) {
+			musicdetail = (await music.search(`${videoDetails.title} - ${videoDetails.ownerChannelName}`))[0].items[0].thumbnails[0].url.replace(
+				'=w60-h60-l90-rj',
+				'=w720-h720-l90-rj'
+			);
 			videoDetails.ownerChannelName = videoDetails.ownerChannelName.substring(0, pos) + videoDetails.ownerChannelName.substring(pos + target.length);
 		}
 
@@ -383,10 +402,14 @@ app.get('/download', async (req, res) => {
 			} else if (audioSelect == 'on') {
 				if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
 				// output audio as mp3 file
-				await downloadImage(
-					videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url,
-					`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`
-				);
+				if (musicdetail != undefined) {
+					await downloadImage(musicdetail, `${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`);
+				} else {
+					await downloadImage(
+						videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url,
+						`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`
+					);
+				}
 
 				const ffmpegProcess = cp.spawn(
 					ffmpeg,
@@ -457,20 +480,6 @@ app.get('/download', async (req, res) => {
 		}
 
 		if (dl) return downloadVideo(videoItag, videoDetails);
-
-		// if (!video) return;
-		function convertNum(num) {
-			let result;
-			if (num >= 1000000) {
-				result = (num / 1000000).toFixed(1) + 'M';
-			} else if (num >= 1000) {
-				result = (num / 1000).toFixed(1) + 'K';
-			} else {
-				result = num.toString();
-			}
-			// Remove .0 from the result
-			return result.replace('.0', '');
-		}
 
 		videoDetails.availableCountries = null;
 		videoDetails.keywords = null;
