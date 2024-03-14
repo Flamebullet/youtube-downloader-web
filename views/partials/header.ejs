@@ -138,6 +138,7 @@
 						const urlParams = new URLSearchParams(queryString);
 						const audio = urlParams.get('audio');
 						const video = urlParams.get('video');
+						const thumbnail = urlParams.get('thumbnail');
 						const url = urlParams.get('url');
 						if (audio === 'on') {
 							document
@@ -156,6 +157,15 @@
 							document
 								.getElementById('header-search-form')
 								.insertAdjacentHTML('beforeend', '<input type="checkbox" id="video" name="video" hidden />');
+						}
+						if (thumbnail === 'on') {
+							document
+								.getElementById('header-search-form')
+								.insertAdjacentHTML('beforeend', '<input type="checkbox" id="thumbnail" name="thumbnail" checked hidden />');
+						} else {
+							document
+								.getElementById('header-search-form')
+								.insertAdjacentHTML('beforeend', '<input type="checkbox" id="thumbnail" name="thumbnail" hidden />');
 						}
 						document.getElementById('search-box').value = url;
 						document.getElementById('search-icon').style.display = 'none';

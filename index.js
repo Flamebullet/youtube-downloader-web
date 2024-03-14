@@ -104,7 +104,7 @@ app.get('/', (req, res) => {
 
 // search page
 app.get('/search', async (req, res) => {
-	const { url, video, audio } = req.query;
+	const { url, video, audio, thumbnail } = req.query;
 	let results;
 
 	await youtube
@@ -125,7 +125,13 @@ app.get('/search', async (req, res) => {
 				result.timestamp = secToStr(result.duration);
 			}
 
-			return res.render('search', { JSONresults: encodeURIComponent(JSON.stringify({ results })), results: results, video: video, audio: audio });
+			return res.render('search', {
+				JSONresults: encodeURIComponent(JSON.stringify({ results })),
+				results: results,
+				video: video,
+				audio: audio,
+				thumbnail: thumbnail
+			});
 		})
 		.catch(async (err) => {
 			console.log(err);
@@ -135,7 +141,7 @@ app.get('/search', async (req, res) => {
 });
 
 app.get('/playlist', async (req, res) => {
-	const { url, video, audio } = req.query;
+	const { url, video, audio, thumbnail } = req.query;
 
 	function playlistUrlToId(url) {
 		const youtubePlaylistRegex = /^\<?(https?:\/\/)?((w{3}\.)|(music\.))?(youtube\.com\/(playlist\?list\=))(?<urlkey>[\S]{23,41})\>?/gm;
@@ -185,6 +191,7 @@ app.get('/playlist', async (req, res) => {
 		results: results,
 		video: video,
 		audio: audio,
+		thumbnail: thumbnail,
 		title: playlist.videos.playlist.title
 	});
 });
@@ -194,6 +201,7 @@ app.get('/download', async (req, res) => {
 	let title, videoFormats;
 	const videoSelect = req.query.video ? req.query.video : 'off';
 	const audioSelect = req.query.audio ? req.query.audio : 'off';
+	const thumbnailSelect = req.query.thumbnail ? req.query.thumbnail : 'off';
 	let { url } = req.query;
 	const { videoItag, dl, uid } = req.query;
 
@@ -229,10 +237,10 @@ app.get('/download', async (req, res) => {
 	try {
 		const youtubePlaylistRegex = /^\<?(https?:\/\/)?((w{3}\.)|(music\.))?(youtube\.com\/(playlist\?list\=))(?<urlkey>[\S]{23,41})\>?/gm;
 		if (url.match(youtubePlaylistRegex))
-			return res.redirect(`/playlist?url=${encodeURIComponent(url)}&video=${encodeURIComponent(videoSelect)}&audio=${encodeURIComponent(audioSelect)}`);
+			return res.redirect(`/playlist?url=${encodeURIComponent(url)}&video=${videoSelect}&audio=${audioSelect}&thumbnail=${thumbnailSelect}`);
 		// Create the video quality selection dropdown menu
 		const video = await ytdl.getInfo(url).catch(() => {
-			return res.redirect(`/search?url=${encodeURIComponent(url)}&video=${encodeURIComponent(videoSelect)}&audio=${encodeURIComponent(audioSelect)}`);
+			return res.redirect(`/search?url=${encodeURIComponent(url)}&video=${videoSelect}&audio=${audioSelect}&thumbnail=${thumbnailSelect}`);
 		});
 		if (!video) return;
 
@@ -395,69 +403,123 @@ app.get('/download', async (req, res) => {
 				video.pipe(ffmpegProcess.stdio[5]);
 			} else if (audioSelect == 'on') {
 				if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
+
 				// output audio as mp3 file
-				await downloadImage(
-					videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url,
-					`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`
-				);
+				if (thumbnailSelect == 'on') {
+					await downloadImage(
+						videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url,
+						`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`
+					);
 
-				const ffmpegProcess = cp.spawn(
-					ffmpeg,
-					[
-						// Remove ffmpeg's console spamming
-						'-loglevel',
-						'8',
-						'-hide_banner',
-						// Redirect/Enable progress messages
-						'-progress',
-						'pipe:3',
-						// Set inputs
-						'-i',
-						'pipe:4',
-						// Map audio & video from streams
-						'-i',
-						`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`,
-						'-map',
-						'0',
-						'-map',
-						'1',
-						'-codec:a',
-						'libmp3lame',
-						'-qscale:a',
-						'0',
-						'-metadata',
-						`title=${videoDetails.title}`, // Set track name (title)
-						'-metadata',
-						`artist=${artist}`, // Set performer (artist)
-						'-metadata',
-						`album=${videoDetails.title}`, // Set album name
-						'-y',
-						filename
-					],
-					{
-						windowsHide: true,
-						stdio: [
-							/* Standard: stdin, stdout, stderr */
-							'inherit',
-							'inherit',
-							'inherit',
-							/* Custom: pipe:3, pipe:4, pipe:5 */
-							'pipe',
-							'pipe'
-						]
-					}
-				);
+					const ffmpegProcess = cp.spawn(
+						ffmpeg,
+						[
+							// Remove ffmpeg's console spamming
+							'-loglevel',
+							'8',
+							'-hide_banner',
+							// Redirect/Enable progress messages
+							'-progress',
+							'pipe:3',
+							// Set inputs
+							'-i',
+							'pipe:4',
+							// Map audio & video from streams
+							'-i',
+							`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`,
+							'-map',
+							'0',
+							'-map',
+							'1',
+							'-codec:a',
+							'libmp3lame',
+							'-qscale:a',
+							'0',
+							'-metadata',
+							`title=${videoDetails.title}`, // Set track name (title)
+							'-metadata',
+							`artist=${artist}`, // Set performer (artist)
+							'-metadata',
+							`album=${videoDetails.title}`, // Set album name
+							'-y',
+							filename
+						],
+						{
+							windowsHide: true,
+							stdio: [
+								/* Standard: stdin, stdout, stderr */
+								'inherit',
+								'inherit',
+								'inherit',
+								/* Custom: pipe:3, pipe:4, pipe:5 */
+								'pipe',
+								'pipe'
+							]
+						}
+					);
 
-				ffmpegProcess.on('close', async () => {
-					clearInterval(progressbarHandle);
-					Object.assign(progbarobj, { [uid]: `Done ${encodeURIComponent(filename)}` });
-					fs.unlink(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`, () => {
-						return;
+					ffmpegProcess.on('close', async () => {
+						clearInterval(progressbarHandle);
+						Object.assign(progbarobj, { [uid]: `Done ${encodeURIComponent(filename)}` });
+						fs.unlink(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`, () => {
+							return;
+						});
+						return res.status(200).json({ file: encodeURIComponent(filename) });
 					});
-					return res.status(200).json({ file: encodeURIComponent(filename) });
-				});
 
-				audio.pipe(ffmpegProcess.stdio[4]);
+					audio.pipe(ffmpegProcess.stdio[4]);
+				} else {
+					const ffmpegProcess = cp.spawn(
+						ffmpeg,
+						[
+							// Remove ffmpeg's console spamming
+							'-loglevel',
+							'8',
+							'-hide_banner',
+							// Redirect/Enable progress messages
+							'-progress',
+							'pipe:3',
+							// Set inputs
+							'-i',
+							'pipe:4',
+							// Map audio & video from streams
+							'-map',
+							'0:a',
+							'-codec:a',
+							'libmp3lame',
+							'-qscale:a',
+							'0',
+							'-metadata',
+							`title=${videoDetails.title}`, // Set track name (title)
+							'-metadata',
+							`artist=${artist}`, // Set performer (artist)
+							'-metadata',
+							`album=${videoDetails.title}`, // Set album name
+							'-y',
+							filename
+						],
+						{
+							windowsHide: true,
+							stdio: [
+								/* Standard: stdin, stdout, stderr */
+								'inherit',
+								'inherit',
+								'inherit',
+								/* Custom: pipe:3, pipe:4, pipe:5 */
+								'pipe',
+								'pipe'
+							]
+						}
+					);
+
+					ffmpegProcess.on('close', async () => {
+						clearInterval(progressbarHandle);
+						Object.assign(progbarobj, { [uid]: `Done ${encodeURIComponent(filename)}` });
+						return res.status(200).json({ file: encodeURIComponent(filename) });
+					});
+
+					audio.pipe(ffmpegProcess.stdio[4]);
+				}
 			} else if (videoSelect == 'on') {
 				if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
 				video.pipe(fs.createWriteStream(filename));
@@ -486,8 +548,9 @@ app.get('/download', async (req, res) => {
 			subscribers: subscribers,
 			verified: videoDetails.author.verified,
 			videoFormats: videoFormats,
-			videoSelect: videoSelect,
-			audioSelect: audioSelect,
+			video: videoSelect,
+			audio: audioSelect,
+			thumbnail: thumbnailSelect,
 			videoDetails: encodeURIComponent(JSON.stringify(videoDetails))
 		});
 	} catch (err) {

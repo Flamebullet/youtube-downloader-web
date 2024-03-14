@@ -281,15 +281,16 @@
 
 				<!-- download form -->
 				<div class="container float_right">
-					<% if (videoSelect == 'on') { %>
+					<% if (video == 'on') { %>
 					<div class="selectdiv">
 						<table id="center">
 							<tr>
 								<td>
 									<select id="video-quality">
-										<%for (i in videoFormats) { let video = videoFormats[i];%>
+										<%for (i in videoFormats) { let videos = videoFormats[i];%>
 										<option value="<%=video.itag%>">
-											bitrate: <%=video.bitrate%>bps | <%=video.container%>(<%=video.videoCodec.split('.')[0]%>) | <%=video.qualityLabel%>
+											bitrate: <%=videos.bitrate%>bps | <%=videos.container%>(<%=videos.videoCodec.split('.')[0]%>) |
+											<%=videos.qualityLabel%>
 										</option>
 										<%}%>
 									</select>

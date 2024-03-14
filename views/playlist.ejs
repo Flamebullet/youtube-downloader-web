@@ -76,7 +76,7 @@
                         const url = results.results[i].url;
     
                         // Get download data
-                        fetch(`${window.location.origin}/download?url=${url}&audio=on&video=off&videoItag=null&dl=true&uid=${uid}`, {
+                        fetch(`${window.location.origin}/download?url=${url}&audio=on&video=off&thumbnail=<%= thumbnail %>&videoItag=null&dl=true&uid=${uid}`, {
                             method: 'GET'
                         });
     
@@ -134,7 +134,7 @@
                         const url = results.results[parseInt(idNumber)].url;
 
                         // Get download data
-                        fetch(`${window.location.origin}/download?url=${url}&audio=on&video=off&videoItag=null&dl=true&uid=${uid}`, {
+                        fetch(`${window.location.origin}/download?url=${url}&audio=on&video=off&thumbnail=<%= thumbnail %>&videoItag=null&dl=true&uid=${uid}`, {
                             method: 'GET'
                         });
 
@@ -266,7 +266,7 @@
 						</td>
 						<td class="thumbnail">
 							<div class="thumbnail-container">
-								<a href="download?url=<%=results[i].url %>&audio=<%= audio %>&video=<%= video %>">
+								<a href="download?url=<%=results[i].url %>&audio=<%= audio %>&video=<%= video %>&thumbnail=<%= thumbnail %>">
 									<img src="<%= results[i].thumbnail %>" alt="<%= results[i].title %>" />
 									<div class="thumbnail-overlay">
 										<p class="thumbnail-timestamp"><%= results[i].timestamp %></p>
@@ -276,7 +276,7 @@
 						</td>
 						<td style="vertical-align: top">
 							<div>
-								<a href="download?url=<%=results[i].url %>&audio=<%= audio %>&video=<%= video %>" style="text-decoration: none">
+								<a href="download?url=<%=results[i].url %>&audio=<%= audio %>&video=<%= video %>&thumbnail=<%= thumbnail %>" style="text-decoration: none">
 									<p class="title" style="font-weight: bold; font-size: 1.3rem; margin-bottom: 2px; color: white"><%= results[i].title %></p>
 								</a>
 								
