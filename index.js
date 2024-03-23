@@ -7,7 +7,7 @@ const ytdl = require('ytdl-core');
 const fs = require('fs');
 const cp = require('child_process');
 const ffmpeg = require('ffmpeg-static');
-const { Client } = require('youtubei');
+const { Client, SearchResult } = require('youtubei');
 const youtube = new Client();
 const { spotifyId, spotifySecret, databaseUrl } = require('./cred.js');
 const spotifyInfo = require('spotify-info');
@@ -105,38 +105,80 @@ app.get('/', (req, res) => {
 // search page
 app.get('/search', async (req, res) => {
 	const { url, video, audio, thumbnail } = req.query;
+	const continuation = req.query.continuation ? req.query.continuation : null;
 	let results;
 
-	await youtube
-		.search(url, { type: 'video' })
-		.then(async (r) => {
-			if (r.length === 0) return res.redirect(`/?err=${encodeURIComponent(`No videos found from "${url}"`)}`);
-			results = r.items;
-			for (var result of results) {
-				result.client = null;
-				result.thumbnail = result.thumbnails[0].url;
-				result.thumbnails = null;
-				result.channel.client = null;
-				result.channel.shorts = null;
-				result.channel.live = null;
-				result.channel.videos = null;
-				result.channel.playlists = null;
-				result.url = `https://www.youtube.com/watch?v=${result.id}`;
-				result.timestamp = secToStr(result.duration);
-			}
+	if (continuation) {
+		const encodedcont = JSON.parse(decodeURIComponent(continuation));
+		let decodedcont = new SearchResult({ client: new Client(encodedcont.searchCont.client) });
+		decodedcont.continuation = encodedcont.searchCont.continuation;
+		results = await decodedcont.next();
 
-			return res.render('search', {
-				JSONresults: encodeURIComponent(JSON.stringify({ results })),
-				results: results,
-				video: video,
-				audio: audio,
-				thumbnail: thumbnail
-			});
-		})
-		.catch(async (err) => {
-			console.log(err);
-			return res.redirect(`/?err=${encodeURIComponent(err)}`);
+		for (var result of results) {
+			result.client = null;
+			result.thumbnail = result.thumbnails[0].url;
+			result.thumbnails = null;
+			result.channel.client = null;
+			result.channel.shorts = null;
+			result.channel.live = null;
+			result.channel.videos = null;
+			result.channel.playlists = null;
+			result.url = `https://www.youtube.com/watch?v=${result.id}`;
+			result.timestamp = secToStr(result.duration);
+		}
+
+		if (results.length == 0) {
+			decodedcont = null;
+		}
+
+		return res.status(200).json({
+			JSONresults: encodeURIComponent(JSON.stringify({ results })),
+			continuation: encodeURIComponent(JSON.stringify({ decodedcont })),
+			results: results,
+			video: video,
+			audio: audio,
+			thumbnail: thumbnail
 		});
+	} else {
+		await youtube
+			.search(url, { type: 'video' })
+			.then(async (r) => {
+				if (r.length === 0) return res.redirect(`/?err=${encodeURIComponent(`No videos found from "${url}"`)}`);
+				results = r.items;
+				for (var result of results) {
+					result.client = null;
+					result.thumbnail = result.thumbnails[0].url;
+					result.thumbnails = null;
+					result.channel.client = null;
+					result.channel.shorts = null;
+					result.channel.live = null;
+					result.channel.videos = null;
+					result.channel.playlists = null;
+					result.url = `https://www.youtube.com/watch?v=${result.id}`;
+					result.timestamp = secToStr(result.duration);
+				}
+
+				let searchCont;
+				if (r.continuation) {
+					searchCont = { client: r.client, continuation: r.continuation };
+				} else {
+					searchCont = null;
+				}
+
+				return res.render('search', {
+					JSONresults: encodeURIComponent(JSON.stringify({ results })),
+					continuation: encodeURIComponent(JSON.stringify({ searchCont })),
+					results: results,
+					video: video,
+					audio: audio,
+					thumbnail: thumbnail
+				});
+			})
+			.catch(async (err) => {
+				console.log(err);
+				return res.redirect(`/?err=${encodeURIComponent(err)}`);
+			});
+	}
 	return;
 });
 
