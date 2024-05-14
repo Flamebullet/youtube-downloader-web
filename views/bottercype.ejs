@@ -236,6 +236,7 @@
 								<li><a href="#hello">hello</a> - Test command</li>
 								<li><a href="#connect">connect</a> - Connect bot to channel <strong>(Requires mod permission)</strong></li>
 								<li><a href="#disconnect">disconnect</a> - Disconnect bot from channel <strong>(Requires mod permission)</strong></li>
+                                <li><a href="#followage">followage</a> - Shows the follow duration of the follower</li>
 								<li><a href="#so">so</a> - Shoutout another channel <strong>(Requires mod permission)</strong></li>
 								<li>
 									<a href="#followmsg">followmsg</a> - Command to add a custom message for user follow event
@@ -303,6 +304,15 @@
 								<strong>Usage:</strong> <code>!so @[user]</code> OR <code>!so [user]</code>
 								<strong>Example:</strong>
 								<code>!so @Bottercype</code> OR <code>!so bottercype</code>
+							</p>
+                            <h2 id="followage">followage</h2>
+							<hr />
+							<p>Shows the follow duration of the follower</p>
+                            <br>
+							<p><strong>Usage:</strong> <code>!followage</code></p>
+							<p>
+								<strong>Output when using !so @bottercype:</strong> <br>
+                                @Bottercype have been following @streamer for 6years 9months 4days 20hours 6minutes 9seconds
 							</p>
 							<h2 id="followmsg">followmsg</h2>
 							<hr />
@@ -436,6 +446,7 @@
 							<p><strong>Usage:</strong> <code>!removerandcommand [command]</code></p>
 							<p><strong>Example:</strong> <code>!removerandcommand cute</code></p>
                             <h2 id="addcountercommand">addcountercommand</h2>
+                            <hr />
                             <p>Add a custom command that counts when the command is used. Common usage: death counter.</p>
                             <p><strong>Usage:</strong>
                             <code>!addcountercommand [command] [message]</code></p>
@@ -446,15 +457,16 @@
                             </ul>
                             <p><strong>Example:</strong>
                             <code>!addcountercommand death Bottercype died {count} times.</code><br><br>
-                            <strong>Output when using <code>!deathadd</code> (Initial count: 0):</strong><br>
+                            <strong>Output when using <code>!death</code> (Initial count: 0):</strong><br>
                             Bottercype died 1 times.<br>
                             <strong>Output when using <code>!deathsub</code> (Initial count: 1):</strong><br>
                             Bottercype died 0 times.<br>
                             <strong>Output when using <code>!deathset 69</code> (Initial count: 0):</strong><br>
                             Bottercype died 69 times.<br>
-                            <strong>Output when using <code>!death</code> (Initial count: 69):</strong><br>
+                            <strong>Output when using <code>!deathcount</code> (Initial count: 69):</strong><br>
                             Bottercype died 69 times.</p><br>
                             <h2 id="removecountercommand">removecountercommand</h2>
+                            <hr />
                             <p>Removes a custom counter command added via <code>!addcountercommand</code> from channel.</p>
                             <p><strong>Usage:</strong> <code>!removecountercommand [command]</code></p>
                             <p><strong>Example:</strong>
