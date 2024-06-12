@@ -293,9 +293,10 @@ app.get('/download', async (req, res) => {
 			videoDetails.ownerChannelName = videoDetails.ownerChannelName.substring(0, pos) + videoDetails.ownerChannelName.substring(pos + target.length);
 		}
 
-		const songCard =
-			video.response.engagementPanels[1].engagementPanelSectionListRenderer.content.structuredDescriptionContentRenderer?.items[2]
-				.horizontalCardListRenderer?.cards;
+		const songCard = video.response.engagementPanels[1].engagementPanelSectionListRenderer.content.structuredDescriptionContentRenderer?.items[2]
+			? video.response.engagementPanels[1].engagementPanelSectionListRenderer.content.structuredDescriptionContentRenderer?.items[2]
+					.horizontalCardListRenderer?.cards
+			: null;
 		const artist =
 			songCard?.length == 1 && songCard[0].videoAttributeViewModel.subtitle.toLowerCase() != videoDetails.ownerChannelName.toLowerCase()
 				? `${videoDetails.ownerChannelName}, ${songCard[0].videoAttributeViewModel.subtitle}`
