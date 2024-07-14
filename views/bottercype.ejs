@@ -402,6 +402,26 @@
                             <h4 id="to-remove-the-bit-message">To remove the bit message</h4>
                             <p><strong>Usage:</strong>
                             <code>!bitmsg remove</code></p>
+                            <h2 id="raidmsg">raidmsg</h2>
+                            <hr />
+                            <p>Setup a custom message that triggers when a user sends bits your channel.
+                            Auto shoutout will determine if bot will automatically shoutout when you get raided. Only <code>true</code> or <code>false</code> in full lowercase should be enter for this field, if anything else other than <code>true</code> or <code>false</code> is entered, it will default to true.
+                            Shoutout message is required to be set to automatically shoutout.</p>
+                            <h4 id="to-add-a-raid-message">To add a raid message</h4>
+                            <p><strong>Usage:</strong>
+                            <code>!raidmsg add [auto shoutout: true | false] [message]</code></p>
+                            <p>Variables:</p>
+                            <ul>
+                            <li>{user} - Username of the channel raiding you</li>
+                            <li>{viewers} - Number of viewers they sent over</li>
+                            </ul>
+                            <p><strong>Example:</strong>
+                            <code>!raidmsg add true {raider} raided with {viewers} viewers!</code></p>
+                            <p><strong>Output when a user raided you with 69 viewers:</strong>
+                            @Bottercype raided with 69 viewers</p>
+                            <h4 id="to-remove-the-bit-message">To remove the bit message</h4>
+                            <p><strong>Usage:</strong>
+                            <code>!raidmsg remove</code></p>
 							<h2 id="addcommand">addcommand</h2>
 							<hr />
 							<p>Add a custom command to your channel. Common use case include plugging in socials with <code>!socials</code>.</p>
