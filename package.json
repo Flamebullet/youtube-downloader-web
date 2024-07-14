@@ -9,7 +9,7 @@
 	"author": "Flame",
 	"license": "ISC",
 	"dependencies": {
-		"axios": "^1.6.8",
+		"axios": "^1.7.2",
 		"child_process": "^1.0.2",
 		"dotenv": "^16.4.5",
 		"ejs": "^3.1.10",
@@ -18,7 +18,7 @@
 		"fs": "^0.0.1-security",
 		"postgres": "^3.4.4",
 		"spotify-info": "^1.1.9",
-		"youtubei": "^1.4.0",
+		"youtubei": "^1.5.4",
 		"ytdl-core": "https://github.com:khlevon/node-ytdl-core.git#v4.11.4-patch.2"
 	}
 }
