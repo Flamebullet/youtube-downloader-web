@@ -19,6 +19,6 @@
 		"postgres": "^3.4.4",
 		"spotify-info": "^1.1.9",
 		"youtubei": "^1.5.4",
-		"ytdl-core": "https://github.com:khlevon/node-ytdl-core.git#v4.11.4-patch.2"
+		"ytdl-core": "^4.11.5"
 	}
 }
