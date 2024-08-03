@@ -9,6 +9,7 @@
 	"author": "Flame",
 	"license": "ISC",
 	"dependencies": {
+		"@distube/ytdl-core": "^4.13.7",
 		"axios": "^1.7.2",
 		"child_process": "^1.0.2",
 		"dotenv": "^16.4.5",

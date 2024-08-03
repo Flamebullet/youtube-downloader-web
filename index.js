@@ -3,7 +3,7 @@ const https = require('https');
 const path = require('path');
 const app = express();
 // Downloading/file management modules
-const ytdl = require('ytdl-core');
+const ytdl = require('@distube/ytdl-core');
 const fs = require('fs');
 const cp = require('child_process');
 const ffmpeg = require('ffmpeg-static');
@@ -218,6 +218,7 @@ app.get('/playlist', async (req, res) => {
 					result.channel.playlists = null;
 					result.url = `https://www.youtube.com/watch?v=${result.id}`;
 					result.timestamp = secToStr(result.duration);
+					result.captions = null;
 
 					results[index] = result;
 					break;
