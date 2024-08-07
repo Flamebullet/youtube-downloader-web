@@ -3,7 +3,8 @@ const https = require('https');
 const path = require('path');
 const app = express();
 // Downloading/file management modules
-const ytdl = require('@distube/ytdl-core');
+const ytdl = require('ytdl-core');
+// const ytdl = require('@distube/ytdl-core');
 const fs = require('fs');
 const cp = require('child_process');
 const ffmpeg = require('ffmpeg-static');
