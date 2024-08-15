@@ -22,6 +22,9 @@ const sql = postgres(databaseUrl, {
 	idle_timeout: 5
 });
 
+// agent should be created once if you don't want to change your cookie
+const agent = ytdl.createAgent(JSON.parse(fs.readFileSync('cookie.txt', 'utf8')));
+
 // Code to serve images
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -283,7 +286,7 @@ app.get('/download', async (req, res) => {
 		if (url.match(youtubePlaylistRegex))
 			return res.redirect(`/playlist?url=${encodeURIComponent(url)}&video=${videoSelect}&audio=${audioSelect}&thumbnail=${thumbnailSelect}`);
 		// Create the video quality selection dropdown menu
-		const video = await ytdl.getInfo(url).catch(() => {
+		const video = await ytdl.getInfo(url, agent).catch(() => {
 			return res.redirect(`/search?url=${encodeURIComponent(url)}&video=${videoSelect}&audio=${audioSelect}&thumbnail=${thumbnailSelect}`);
 		});
 		if (!video) return;
