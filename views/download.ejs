@@ -71,6 +71,8 @@
 					const selecturl = window.location.href;
 					const baseurl = window.location.origin;
 					const videoItag = document.getElementById('video-quality') ? document.getElementById('video-quality').value : null;
+					const timeStart = document.getElementById('timeStart') ? document.getElementById('timeStart').value : null;
+					const timeEnd = document.getElementById('timeEnd') ? document.getElementById('timeEnd').value : null;
 					function wait(ms) {
 						return new Promise((resolve) => setTimeout(resolve, ms));
 					}
@@ -89,7 +91,7 @@
 						const uid = Date.now().toString(36) + Math.random().toString(36).substr(2);
 
 						// Get download data
-						fetch(`${selecturl}&videoItag=${videoItag}&dl=true&uid=${uid}`, {
+						fetch(`${selecturl}&videoItag=${videoItag}&timeStart=${timeStart}&timeEnd=${timeEnd}&dl=true&uid=${uid}`, {
 							method: 'GET'
 						});
 
@@ -286,6 +288,16 @@
 						<table id="center">
 							<tr>
 								<td>
+									<label for="timeStart">Start time:</label>
+									<input class="time" type="text" id="timeStart" placeholder="0:00" />
+								</td>
+								<td>
+									<label for="timeEnd">End time:</label>
+									<input class="time" type="text" id="timeEnd" placeholder="0:00" />
+								</td>
+							</tr>
+							<tr>
+								<td>
 									<select id="video-quality">
 										<%for (i in videoFormats) { let videos = videoFormats[i];%>
 										<option value="<%=videos.itag%>">
@@ -305,7 +317,26 @@
 					</div>
 					<% } else {%>
 					<br />
-					<button class="search-download-button" id="videoqualitydownload" style="float: right !important">Download</button>
+					<div class="selectdiv">
+						<table id="center">
+							<tr>
+								<td>
+									<label for="timeStart">Start time:</label>
+									<input class="time" type="text" id="timeStart" placeholder="0:00" />
+								</td>
+								<td>
+									<label for="timeEnd">End time:</label>
+									<input class="time" type="text" id="timeEnd" placeholder="0:00" />
+								</td>
+							</tr>
+							<tr>
+								<td></td>
+								<td style="padding: 0px">
+									<button class="search-download-button" id="videoqualitydownload" style="float: right !important">Download</button>
+								</td>
+							</tr>
+						</table>
+					</div>
 					<% } %>
 					<!-- The Modal -->
 					<div id="myModal" class="modal">
@@ -391,5 +422,87 @@
 				}
 			}
 		</style>
+		<script>
+			function formatSecondsToTime(seconds) {
+				const minutes = Math.floor(seconds / 60);
+				seconds = seconds % 60;
+				return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+			}
+
+			let videoDetails = JSON.parse(decodeURIComponent(`<%- videoDetails %>`));
+			const timeMax = BigInt(videoDetails.lengthSeconds);
+
+			// Prepopulate the start and end times
+			document.getElementById('timeStart').value = '0:00';
+			document.getElementById('timeEnd').value = formatSecondsToTime(Number(timeMax));
+
+			const timeInputs = document.getElementsByClassName('time');
+			for (let input of timeInputs) {
+				input.addEventListener('blur', formatTime);
+				input.addEventListener('keydown', function (event) {
+					if (event.key === 'Enter') {
+						formatTime(event);
+					}
+				});
+			}
+
+			function formatTime(event) {
+				let input = event.target;
+				let value = input.value.replace(/[^0-9:]/g, ''); // Remove non-numeric and non-colon characters
+				let parts = value.split(':');
+
+				// Limit to 2 colons
+				if (parts.length > 3) {
+					parts = parts.slice(0, 3);
+				}
+
+				// Convert parts to numbers
+				let seconds = parseInt(parts.pop() || '0', 10);
+				let minutes = parseInt(parts.pop() || '0', 10);
+				let hours = parseInt(parts.pop() || '0', 10);
+
+				// Calculate total seconds
+				let totalSeconds = BigInt(hours * 3600 + minutes * 60 + seconds);
+
+				// Check if totalSeconds exceeds timeMax
+				if (totalSeconds > timeMax) {
+					totalSeconds = timeMax;
+				}
+
+				// Calculate hours, minutes, and seconds
+				hours = Number(totalSeconds / 3600n);
+				totalSeconds %= 3600n;
+				minutes = Number(totalSeconds / 60n);
+				seconds = Number(totalSeconds % 60n);
+
+				// Format the time string
+				let formattedTime;
+				if (hours > 0) {
+					formattedTime = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+				} else {
+					formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+				}
+				input.value = formattedTime;
+
+				// Check and swap timeStart and timeEnd if necessary
+				const timeStart = document.getElementById('timeStart').value;
+				const timeEnd = document.getElementById('timeEnd').value;
+
+				if (timeStart && timeEnd && compareTimes(timeStart, timeEnd) > 0) {
+					document.getElementById('timeStart').value = timeEnd;
+					document.getElementById('timeEnd').value = timeStart;
+				}
+			}
+
+			function compareTimes(time1, time2) {
+				const [h1, m1, s1] = time1.split(':').map(Number);
+				const [h2, m2, s2] = time2.split(':').map(Number);
+
+				const totalSeconds1 = (h1 || 0) * 3600 + (m1 || 0) * 60 + (s1 || 0);
+				const totalSeconds2 = (h2 || 0) * 3600 + (m2 || 0) * 60 + (s2 || 0);
+
+				return totalSeconds1 - totalSeconds2;
+			}
+		</script>
 	</body>
 </html>

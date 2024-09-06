@@ -15,6 +15,7 @@ const spotifyInfo = require('spotify-info');
 spotifyInfo.setApiCredentials(spotifyId, spotifySecret);
 const postgres = require('postgres');
 const axios = require('axios');
+const { time } = require('console');
 
 // progress bar object
 const progbarobj = {};
@@ -251,6 +252,7 @@ app.get('/download', async (req, res) => {
 	const thumbnailSelect = req.query.thumbnail ? req.query.thumbnail : 'off';
 	let { url } = req.query;
 	const { videoItag, dl, uid } = req.query;
+	let { timeStart, timeEnd } = req.query;
 
 	if (url == '') return res.redirect(`/?err=${encodeURIComponent('URL cannot be empty')}`);
 	if (videoSelect == 'off' && audioSelect == 'off')
@@ -382,83 +384,58 @@ app.get('/download', async (req, res) => {
 					return;
 				});
 			}
+
+			const startTime = timeStart;
+			function getTimeDifference() {
+				// Ensure times are in HH:MM:SS format
+				if (timeStart.split(':').length === 2) {
+					timeStart = `00:${timeStart}`;
+				}
+				if (timeEnd.split(':').length === 2) {
+					timeEnd = `00:${timeEnd}`;
+				}
+
+				const [h1, m1, s1] = timeStart.split(':').map(Number);
+				const [h2, m2, s2] = timeEnd.split(':').map(Number);
+
+				const totalSeconds1 = (h1 || 0) * 3600 + (m1 || 0) * 60 + (s1 || 0);
+				const totalSeconds2 = (h2 || 0) * 3600 + (m2 || 0) * 60 + (s2 || 0);
+
+				let diffSeconds = Math.abs(totalSeconds2 - totalSeconds1);
+
+				const hours = Math.floor(diffSeconds / 3600);
+				diffSeconds %= 3600;
+				const minutes = Math.floor(diffSeconds / 60);
+				const seconds = diffSeconds % 60;
+
+				return hours > 0
+					? `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+					: `${minutes}:${seconds.toString().padStart(2, '0')}`;
+			}
+
+			function compareTimes(time1, time2) {
+				const [h1, m1, s1] = time1.split(':').map(Number);
+				const [h2, m2, s2] = time2.split(':').map(Number);
+
+				const totalSeconds1 = (h1 || 0) * 3600 + (m1 || 0) * 60 + (s1 || 0);
+				const totalSeconds2 = (h2 || 0) * 3600 + (m2 || 0) * 60 + (s2 || 0);
+
+				return totalSeconds1 - totalSeconds2;
+			}
+
+			function timeToSeconds(time) {
+				if (time.split(':').length === 2) {
+					time = `00:${time}`;
+				}
+				const [hours, minutes, seconds] = time.split(':').map(Number);
+				return hours * 3600 + minutes * 60 + seconds;
+			}
+
+			const timeDiff = timeStart && timeEnd && compareTimes(timeStart, timeEnd) < 0 ? getTimeDifference() : null;
+
 			if (audioSelect == 'on' && videoSelect == 'on') {
 				// Start the ffmpeg child process
-				const ffmpegProcess = cp.spawn(
-					ffmpeg,
-					[
-						// Remove ffmpeg's console spamming
-						'-loglevel',
-						'8',
-						'-hide_banner',
-						// Redirect/Enable progress messages
-						'-progress',
-						'pipe:3',
-						// Set inputs
-						'-i',
-						'pipe:4',
-						'-i',
-						'pipe:5',
-						// Map audio & video from streams
-						'-map',
-						'0:a',
-						'-map',
-						'1:v',
-						// Keep encoding
-						'-c:v',
-						'copy',
-						// Define output file
-						filename
-					],
-					{
-						windowsHide: true,
-						stdio: [
-							/* Standard: stdin, stdout, stderr */
-							'inherit',
-							'inherit',
-							'inherit',
-							/* Custom: pipe:3, pipe:4, pipe:5 */
-							'pipe',
-							'pipe',
-							'pipe'
-						]
-					}
-				);
-
-				ffmpegProcess.on('close', async () => {
-					clearInterval(progressbarHandle);
-					Object.assign(progbarobj, { [uid]: `Done ${encodeURIComponent(filename)}` });
-					return res.status(200).json({ file: encodeURIComponent(filename) });
-				});
-
-				// Link streams
-				// FFmpeg creates the transformer streams and we just have to insert / read data
-				ffmpegProcess.stdio[3].on('data', (chunk) => {
-					// Start the progress bar
-					if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
-
-					// Parse the param=value list returned by ffmpeg
-					const lines = chunk.toString().trim().split('\n');
-					const args = {};
-					for (const l of lines) {
-						const [key, value] = l.split('=');
-						args[key.trim()] = value.trim();
-					}
-					tracker.merged = args;
-				});
-
-				audio.pipe(ffmpegProcess.stdio[4]);
-				video.pipe(ffmpegProcess.stdio[5]);
-			} else if (audioSelect == 'on') {
-				if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
-
-				// output audio as mp3 file
-				if (thumbnailSelect == 'on') {
-					await downloadImage(
-						videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url,
-						`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`
-					);
-
+				if (timeDiff && parseInt(videoDetails.lengthSeconds) > timeToSeconds(timeDiff)) {
 					const ffmpegProcess = cp.spawn(
 						ffmpeg,
 						[
@@ -466,30 +443,27 @@ app.get('/download', async (req, res) => {
 							'-loglevel',
 							'8',
 							'-hide_banner',
+							'-ss',
+							timeToSeconds(startTime),
 							// Redirect/Enable progress messages
 							'-progress',
 							'pipe:3',
 							// Set inputs
 							'-i',
 							'pipe:4',
-							// Map audio & video from streams
 							'-i',
-							`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`,
+							'pipe:5',
+							// Map audio & video from streams
+							'-t',
+							timeToSeconds(timeDiff),
 							'-map',
-							'0',
+							'0:a',
 							'-map',
-							'1',
-							'-codec:a',
-							'libmp3lame',
-							'-qscale:a',
-							'0',
-							'-metadata',
-							`title=${videoDetails.title}`, // Set track name (title)
-							'-metadata',
-							`artist=${artist}`, // Set performer (artist)
-							'-metadata',
-							`album=${videoDetails.title}`, // Set album name
-							'-y',
+							'1:v',
+							// Keep encoding
+							'-c:v',
+							'copy',
+							// Define output file
 							filename
 						],
 						{
@@ -501,6 +475,7 @@ app.get('/download', async (req, res) => {
 								'inherit',
 								/* Custom: pipe:3, pipe:4, pipe:5 */
 								'pipe',
+								'pipe',
 								'pipe'
 							]
 						}
@@ -509,13 +484,30 @@ app.get('/download', async (req, res) => {
 					ffmpegProcess.on('close', async () => {
 						clearInterval(progressbarHandle);
 						Object.assign(progbarobj, { [uid]: `Done ${encodeURIComponent(filename)}` });
-						fs.unlink(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`, () => {
-							return;
-						});
 						return res.status(200).json({ file: encodeURIComponent(filename) });
 					});
 
-					audio.pipe(ffmpegProcess.stdio[4]);
+					// Link streams
+					// FFmpeg creates the transformer streams and we just have to insert / read data
+					ffmpegProcess.stdio[3].on('data', (chunk) => {
+						// Start the progress bar
+						if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
+
+						// Parse the param=value list returned by ffmpeg
+						const lines = chunk.toString().trim().split('\n');
+						const args = {};
+						for (const l of lines) {
+							const [key, value] = l.split('=');
+							args[key.trim()] = value.trim();
+						}
+						tracker.merged = args;
+					});
+
+					ffmpegProcess.stdio[4].on('error', (err) => {});
+					ffmpegProcess.stdio[5].on('error', (err) => {});
+
+					audio.pipe(ffmpegProcess.stdio[4]).on('error', (err) => {});
+					video.pipe(ffmpegProcess.stdio[5]).on('error', (err) => {});
 				} else {
 					const ffmpegProcess = cp.spawn(
 						ffmpeg,
@@ -530,20 +522,337 @@ app.get('/download', async (req, res) => {
 							// Set inputs
 							'-i',
 							'pipe:4',
+							'-i',
+							'pipe:5',
 							// Map audio & video from streams
 							'-map',
 							'0:a',
-							'-codec:a',
-							'libmp3lame',
-							'-qscale:a',
-							'0',
-							'-metadata',
-							`title=${videoDetails.title}`, // Set track name (title)
-							'-metadata',
-							`artist=${artist}`, // Set performer (artist)
-							'-metadata',
-							`album=${videoDetails.title}`, // Set album name
-							'-y',
+							'-map',
+							'1:v',
+							// Keep encoding
+							'-c:v',
+							'copy',
+							// Define output file
+							filename
+						],
+						{
+							windowsHide: true,
+							stdio: [
+								/* Standard: stdin, stdout, stderr */
+								'inherit',
+								'inherit',
+								'inherit',
+								/* Custom: pipe:3, pipe:4, pipe:5 */
+								'pipe',
+								'pipe',
+								'pipe'
+							]
+						}
+					);
+
+					ffmpegProcess.on('close', async () => {
+						clearInterval(progressbarHandle);
+						Object.assign(progbarobj, { [uid]: `Done ${encodeURIComponent(filename)}` });
+						return res.status(200).json({ file: encodeURIComponent(filename) });
+					});
+
+					// Link streams
+					// FFmpeg creates the transformer streams and we just have to insert / read data
+					ffmpegProcess.stdio[3].on('data', (chunk) => {
+						// Start the progress bar
+						if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
+
+						// Parse the param=value list returned by ffmpeg
+						const lines = chunk.toString().trim().split('\n');
+						const args = {};
+						for (const l of lines) {
+							const [key, value] = l.split('=');
+							args[key.trim()] = value.trim();
+						}
+						tracker.merged = args;
+					});
+
+					audio.pipe(ffmpegProcess.stdio[4]);
+					video.pipe(ffmpegProcess.stdio[5]);
+				}
+			} else if (audioSelect == 'on') {
+				if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
+
+				// output audio as mp3 file
+				if (thumbnailSelect == 'on') {
+					await downloadImage(
+						videoDetails.thumbnails[videoDetails.thumbnails.length - 1].url,
+						`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`
+					);
+
+					if (timeDiff && parseInt(videoDetails.lengthSeconds) > timeToSeconds(timeDiff)) {
+						const ffmpegProcess = cp.spawn(
+							ffmpeg,
+							[
+								// Remove ffmpeg's console spamming
+								'-loglevel',
+								'8',
+								'-hide_banner',
+								'-ss',
+								timeToSeconds(startTime),
+								// Redirect/Enable progress messages
+								'-progress',
+								'pipe:3',
+								// Set inputs
+								'-i',
+								'pipe:4',
+								// Map audio & video from streams
+								'-i',
+								`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`,
+								'-t',
+								timeToSeconds(timeDiff),
+								'-map',
+								'0',
+								'-map',
+								'1',
+								'-codec:a',
+								'libmp3lame',
+								'-qscale:a',
+								'0',
+								'-metadata',
+								`title=${videoDetails.title}`, // Set track name (title)
+								'-metadata',
+								`artist=${artist}`, // Set performer (artist)
+								'-metadata',
+								`album=${videoDetails.title}`, // Set album name
+								'-y',
+								filename
+							],
+							{
+								windowsHide: true,
+								stdio: [
+									/* Standard: stdin, stdout, stderr */
+									'inherit',
+									'inherit',
+									'inherit',
+									/* Custom: pipe:3, pipe:4, pipe:5 */
+									'pipe',
+									'pipe'
+								]
+							}
+						);
+
+						ffmpegProcess.on('close', async () => {
+							clearInterval(progressbarHandle);
+							Object.assign(progbarobj, { [uid]: `Done ${encodeURIComponent(filename)}` });
+							fs.unlink(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`, () => {
+								return;
+							});
+							return res.status(200).json({ file: encodeURIComponent(filename) });
+						});
+
+						ffmpegProcess.stdio[4].on('error', (err) => {});
+
+						audio.pipe(ffmpegProcess.stdio[4]).on('error', (err) => {});
+					} else {
+						const ffmpegProcess = cp.spawn(
+							ffmpeg,
+							[
+								// Remove ffmpeg's console spamming
+								'-loglevel',
+								'8',
+								'-hide_banner',
+								// Redirect/Enable progress messages
+								'-progress',
+								'pipe:3',
+								// Set inputs
+								'-i',
+								'pipe:4',
+								// Map audio & video from streams
+								'-i',
+								`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`,
+								'-map',
+								'0',
+								'-map',
+								'1',
+								'-codec:a',
+								'libmp3lame',
+								'-qscale:a',
+								'0',
+								'-metadata',
+								`title=${videoDetails.title}`, // Set track name (title)
+								'-metadata',
+								`artist=${artist}`, // Set performer (artist)
+								'-metadata',
+								`album=${videoDetails.title}`, // Set album name
+								'-y',
+								filename
+							],
+							{
+								windowsHide: true,
+								stdio: [
+									/* Standard: stdin, stdout, stderr */
+									'inherit',
+									'inherit',
+									'inherit',
+									/* Custom: pipe:3, pipe:4, pipe:5 */
+									'pipe',
+									'pipe'
+								]
+							}
+						);
+
+						ffmpegProcess.on('close', async () => {
+							clearInterval(progressbarHandle);
+							Object.assign(progbarobj, { [uid]: `Done ${encodeURIComponent(filename)}` });
+							fs.unlink(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`, () => {
+								return;
+							});
+							return res.status(200).json({ file: encodeURIComponent(filename) });
+						});
+
+						audio.pipe(ffmpegProcess.stdio[4]);
+					}
+				} else {
+					if (timeDiff && parseInt(videoDetails.lengthSeconds) > timeToSeconds(timeDiff)) {
+						const ffmpegProcess = cp.spawn(
+							ffmpeg,
+							[
+								// Remove ffmpeg's console spamming
+								'-loglevel',
+								'8',
+								'-hide_banner',
+								'-ss',
+								timeToSeconds(startTime),
+								// Redirect/Enable progress messages
+								'-progress',
+								'pipe:3',
+								// Set inputs
+								'-i',
+								'pipe:4',
+								// Map audio & video from streams
+								'-t',
+								timeToSeconds(timeDiff),
+								'-map',
+								'0:a',
+								'-codec:a',
+								'libmp3lame',
+								'-qscale:a',
+								'0',
+								'-metadata',
+								`title=${videoDetails.title}`, // Set track name (title)
+								'-metadata',
+								`artist=${artist}`, // Set performer (artist)
+								'-metadata',
+								`album=${videoDetails.title}`, // Set album name
+								'-y',
+								filename
+							],
+							{
+								windowsHide: true,
+								stdio: [
+									/* Standard: stdin, stdout, stderr */
+									'inherit',
+									'inherit',
+									'inherit',
+									/* Custom: pipe:3, pipe:4, pipe:5 */
+									'pipe',
+									'pipe'
+								]
+							}
+						);
+
+						ffmpegProcess.on('close', async () => {
+							clearInterval(progressbarHandle);
+							Object.assign(progbarobj, { [uid]: `Done ${encodeURIComponent(filename)}` });
+							fs.unlink(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`, () => {
+								return;
+							});
+							return res.status(200).json({ file: encodeURIComponent(filename) });
+						});
+
+						ffmpegProcess.stdio[4].on('error', (err) => {});
+
+						audio.pipe(ffmpegProcess.stdio[4]).on('error', (err) => {});
+					} else {
+						const ffmpegProcess = cp.spawn(
+							ffmpeg,
+							[
+								// Remove ffmpeg's console spamming
+								'-loglevel',
+								'8',
+								'-hide_banner',
+								// Redirect/Enable progress messages
+								'-progress',
+								'pipe:3',
+								// Set inputs
+								'-i',
+								'pipe:4',
+								// Map audio & video from streams
+								'-map',
+								'0:a',
+								'-codec:a',
+								'libmp3lame',
+								'-qscale:a',
+								'0',
+								'-metadata',
+								`title=${videoDetails.title}`, // Set track name (title)
+								'-metadata',
+								`artist=${artist}`, // Set performer (artist)
+								'-metadata',
+								`album=${videoDetails.title}`, // Set album name
+								'-y',
+								filename
+							],
+							{
+								windowsHide: true,
+								stdio: [
+									/* Standard: stdin, stdout, stderr */
+									'inherit',
+									'inherit',
+									'inherit',
+									/* Custom: pipe:3, pipe:4, pipe:5 */
+									'pipe',
+									'pipe'
+								]
+							}
+						);
+
+						ffmpegProcess.on('close', async () => {
+							clearInterval(progressbarHandle);
+							Object.assign(progbarobj, { [uid]: `Done ${encodeURIComponent(filename)}` });
+							return res.status(200).json({ file: encodeURIComponent(filename) });
+						});
+
+						audio.pipe(ffmpegProcess.stdio[4]);
+					}
+				}
+			} else if (videoSelect == 'on') {
+				if (timeDiff && parseInt(videoDetails.lengthSeconds) > timeToSeconds(timeDiff)) {
+					const ffmpegProcess = cp.spawn(
+						ffmpeg,
+						[
+							// Remove ffmpeg's console spamming
+							'-loglevel',
+							'8',
+							'-hide_banner',
+							'-ss',
+							timeToSeconds(startTime),
+							// Redirect/Enable progress messages
+							'-progress',
+							'pipe:3',
+							// Set inputs
+							'-i',
+							'silence.mp3',
+							'-i',
+							'pipe:4',
+							'-t',
+							timeToSeconds(timeDiff),
+							'-map',
+							'0:a',
+							'-map',
+							'1:v',
+							'-map_metadata',
+							'-1',
+							// Keep encoding
+							'-c:v',
+							'copy',
+							// Define output file
 							filename
 						],
 						{
@@ -566,16 +875,18 @@ app.get('/download', async (req, res) => {
 						return res.status(200).json({ file: encodeURIComponent(filename) });
 					});
 
-					audio.pipe(ffmpegProcess.stdio[4]);
+					ffmpegProcess.stdio[4].on('error', (err) => {});
+
+					video.pipe(ffmpegProcess.stdio[4], { end: true, highWaterMark: 64 * 1024 }).on('error', (err) => {});
+				} else {
+					if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
+					video.pipe(fs.createWriteStream(filename));
+					video.on('end', () => {
+						clearInterval(progressbarHandle);
+						Object.assign(progbarobj, { [uid]: `Done ${encodeURIComponent(filename)}` });
+						return res.status(200).json({ file: encodeURIComponent(filename) });
+					});
 				}
-			} else if (videoSelect == 'on') {
-				if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
-				video.pipe(fs.createWriteStream(filename));
-				video.on('end', () => {
-					clearInterval(progressbarHandle);
-					Object.assign(progbarobj, { [uid]: `Done ${encodeURIComponent(filename)}` });
-					return res.status(200).json({ file: encodeURIComponent(filename) });
-				});
 			}
 		}
 
