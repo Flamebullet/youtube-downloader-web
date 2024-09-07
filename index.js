@@ -443,8 +443,6 @@ app.get('/download', async (req, res) => {
 							'-loglevel',
 							'8',
 							'-hide_banner',
-							'-ss',
-							timeToSeconds(startTime),
 							// Redirect/Enable progress messages
 							'-progress',
 							'pipe:3',
@@ -453,16 +451,18 @@ app.get('/download', async (req, res) => {
 							'pipe:4',
 							'-i',
 							'pipe:5',
+							'-ss',
+							timeToSeconds(startTime),
 							// Map audio & video from streams
-							'-t',
-							timeToSeconds(timeDiff),
 							'-map',
 							'0:a',
 							'-map',
 							'1:v',
+							'-t',
+							timeToSeconds(timeDiff),
 							// Keep encoding
-							'-c:v',
-							'copy',
+							'-crf',
+							'18',
 							// Define output file
 							filename
 						],
@@ -530,8 +530,10 @@ app.get('/download', async (req, res) => {
 							'-map',
 							'1:v',
 							// Keep encoding
-							'-c:v',
+							'-c',
 							'copy',
+							'-crf',
+							'18',
 							// Define output file
 							filename
 						],
@@ -831,27 +833,23 @@ app.get('/download', async (req, res) => {
 							'-loglevel',
 							'8',
 							'-hide_banner',
-							'-ss',
-							timeToSeconds(startTime),
 							// Redirect/Enable progress messages
 							'-progress',
 							'pipe:3',
 							// Set inputs
 							'-i',
-							'silence.mp3',
-							'-i',
 							'pipe:4',
-							'-t',
-							timeToSeconds(timeDiff),
 							'-map',
-							'0:a',
-							'-map',
-							'1:v',
+							'0:v',
 							'-map_metadata',
 							'-1',
 							// Keep encoding
-							'-c:v',
-							'copy',
+							'-ss',
+							timeToSeconds(startTime),
+							'-t',
+							timeToSeconds(timeDiff),
+							'-crf',
+							'18',
 							// Define output file
 							filename
 						],
@@ -877,7 +875,7 @@ app.get('/download', async (req, res) => {
 
 					ffmpegProcess.stdio[4].on('error', (err) => {});
 
-					video.pipe(ffmpegProcess.stdio[4], { end: true, highWaterMark: 64 * 1024 }).on('error', (err) => {});
+					video.pipe(ffmpegProcess.stdio[4]).on('error', (err) => {});
 				} else {
 					if (!progressbarHandle) progressbarHandle = setInterval(showProgress, progressbarInterval);
 					video.pipe(fs.createWriteStream(filename));
