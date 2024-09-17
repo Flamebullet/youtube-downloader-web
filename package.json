@@ -10,11 +10,11 @@
 	"license": "ISC",
 	"dependencies": {
 		"@distube/ytdl-core": "^4.14.4",
-		"axios": "^1.7.4",
+		"axios": "^1.7.7",
 		"child_process": "^1.0.2",
 		"dotenv": "^16.4.5",
 		"ejs": "^3.1.10",
-		"express": "^4.19.2",
+		"express": "^4.21.0",
 		"ffmpeg-static": "^5.2.0",
 		"fs": "^0.0.1-security",
 		"postgres": "^3.4.4",
