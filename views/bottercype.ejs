@@ -254,6 +254,14 @@
 									<a href="#raidmsg">raidmsg</a> - Command to add a raid alert message and auto shoutout raider
 									<strong>(Requires mod permission)</strong>
 								</li>
+								<li>
+									<a href="#quote">quote</a> - Command to add or view a quote
+									<strong>(Requires mod permission)</strong>
+								</li>
+								<li>
+									<a href="#unquote">unquote</a> - Command to remove a quote
+									<strong>(Requires mod permission)</strong>
+								</li>
 							</ul>
 							<h1 id="custom-commands">Custom commands</h1>
 							<hr />
@@ -426,6 +434,36 @@
                             <h4 id="to-remove-the-bit-message">To remove the bit message</h4>
                             <p><strong>Usage:</strong>
                             <code>!raidmsg remove</code></p>
+
+
+
+                            <h2 id="quote">quote</h2>
+                            <hr />
+                            <p>Add a list of quotes to your channel.</p>
+                            <h4 id="to-add-a-quote">To add a quote</h4>
+                            <p><strong>Usage:</strong>
+                            <code>!quote add [quote]</code></p>
+                            <p><strong>Example:</strong>
+                            <code>!quote add quote 1</code></p>
+                            <p><strong>Output when a user use !quote:</strong>
+                            @Bottercype Quote#1: quote 1</p>
+                            <h4 id="to-get-a-specific-quote">To get a specific quote</h4>
+                            <p><strong>Usage:</strong>
+                            <code>!quote 69</code></p>
+                            <h4 id="to-get-a-random-quote">To get a random quote</h4>
+                            <p><strong>Usage:</strong>
+                            <code>!quote</code></p>
+
+                            <h2 id="unquote">unquote</h2>
+                            <hr />
+                            <p>Remove a quote from a list of quote on your channel.</p>
+                            <h4 id="to-remove-a-quote">To remove a quote</h4>
+                            <p><strong>Usage:</strong>
+                            <code>!unquote [quotenumber]</code></p>
+                            <p><strong>Example:</strong>
+                            <code>!unquote 69</code></p>
+
+
 							<h2 id="addcommand">addcommand</h2>
 							<hr />
 							<p>Add a custom command to your channel. Common use case include plugging in socials with <code>!socials</code>.</p>
