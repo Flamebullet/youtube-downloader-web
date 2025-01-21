@@ -15,7 +15,6 @@ const spotifyInfo = require('spotify-info');
 spotifyInfo.setApiCredentials(spotifyId, spotifySecret);
 const postgres = require('postgres');
 const axios = require('axios');
-const { time } = require('console');
 
 // progress bar object
 const progbarobj = {};
@@ -95,10 +94,6 @@ const port = 443;
 server.listen(port, () => {
 	console.log(`Server is running on https://localhost:${port}`);
 });
-
-// app.listen(3000, () => {
-// 	console.log('Server is running on http://localhost:3000');
-// });
 
 // home page
 app.get('/', (req, res) => {
@@ -956,6 +951,37 @@ app.get('/twitch-bot/bottercype', async function (req, res) {
 		console.log(err);
 	}
 	return res.render('bottercype');
+});
+
+// movie website code
+app.get('/movies', async function (req, res) {
+	const title = req.query.title ? req.query.title : '';
+	const directoryPath = `${__dirname}\\public\\movies`;
+	let results = [];
+
+	fs.readdir(directoryPath + title, function (err, files) {
+		if (err) {
+			if (title.endsWith('.mkv')) {
+				return res.render('movies', {
+					JSONresults: encodeURIComponent(JSON.stringify({ results })),
+					results: results,
+					path: `${title}\\`,
+					video: `${title.replace(/\\/g, '/')}`
+				});
+			} else {
+				return console.log('Unable to scan directory: ' + err);
+			}
+		}
+		files.forEach(function (file) {
+			results.push(file);
+		});
+		return res.render('movies', {
+			JSONresults: encodeURIComponent(JSON.stringify({ results })),
+			results: results,
+			path: `${title}\\`,
+			video: null
+		});
+	});
 });
 
 app.get('/links', async function (req, res) {
