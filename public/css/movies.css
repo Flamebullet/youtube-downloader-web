@@ -1,0 +1,30 @@
+.video-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 90%; /* Adjust as necessary */
+}
+
+#video {
+	display: none;
+	max-height: 100%;
+}
+
+div.body {
+	display: grid;
+	align-items: center;
+	grid-template-columns: 20% 60% 20%;
+	grid-template-rows: 20% 60% 20%;
+	height: 100vh;
+}
+
+body {
+	background: #0f0f0f;
+	background-color: #0f0f0f;
+	color: #f1f1f1;
+	height: 100vh;
+}
+
+.container {
+	height: 100%;
+}

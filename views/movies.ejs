@@ -8,20 +8,24 @@
 			http-equiv="Content-Security-Policy"
 			content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; connect-src 'self'; font-src 'self'; object-src 'none'; frame-src 'none'; worker-src 'self'; base-uri 'self'; form-action 'self'"
 		/>
+		<link rel="stylesheet" href="/css/movies.css" />
 	</head>
 	<body>
-		<table id="result-table">
-			<tr>
-				<td>Titles</td>
-			</tr>
-			<% for (var i in results) { %>
-			<tr>
-				<td><a href="/movies?title=<%= path %><%= results[i] %>"><%= results[i] %></a></td>
-			</tr>
-			<% } %>
-		</table>
-		<div>
-			<video style="display: none; max-height: 100vh" id="video" controls></video>
+		<div class="container">
+			<a href="/movies">Home</a>
+			<table id="result-table">
+				<tr>
+					<td>Titles</td>
+				</tr>
+				<% for (var i in results) { %>
+				<tr>
+					<td><a href="/movies?title=<%= path %><%= results[i] %>"><%= results[i] %></a></td>
+				</tr>
+				<% } %>
+			</table>
+			<div class="video-container">
+				<video id="video" controls></video>
+			</div>
 		</div>
 	</body>
 	<script>
@@ -40,4 +44,5 @@
 			videoElement.appendChild(source);
 		}
 	</script>
+	<!-- <link rel="stylesheet" href="/css/movies.css" /> -->
 </html>
