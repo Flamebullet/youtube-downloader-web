@@ -306,7 +306,6 @@ app.get('/download', async (req, res) => {
 
 		if ((videoDetails.isLiveContent || videoDetails.isLive) && videoDetails.liveBroadcastDetails.isLiveNow)
 			return res.redirect(`/?err=${encodeURIComponent('Selected video is a live stream, please select a different video.')}`);
-
 		async function downloadVideo(videoItag, videoDetails) {
 			const tracker = {
 				start: Date.now(),
@@ -427,7 +426,6 @@ app.get('/download', async (req, res) => {
 			}
 
 			const timeDiff = timeStart && timeEnd && compareTimes(timeStart, timeEnd) < 0 ? getTimeDifference() : null;
-
 			if (audioSelect == 'on' && videoSelect == 'on') {
 				// Start the ffmpeg child process
 				if (timeDiff && parseInt(videoDetails.lengthSeconds) > timeToSeconds(timeDiff)) {
@@ -500,7 +498,6 @@ app.get('/download', async (req, res) => {
 
 					ffmpegProcess.stdio[4].on('error', (err) => {});
 					ffmpegProcess.stdio[5].on('error', (err) => {});
-
 					audio.pipe(ffmpegProcess.stdio[4]).on('error', (err) => {});
 					video.pipe(ffmpegProcess.stdio[5]).on('error', (err) => {});
 				} else {
@@ -883,7 +880,7 @@ app.get('/download', async (req, res) => {
 			}
 		}
 
-		if (dl) return downloadVideo(videoItag, videoDetails);
+		if (dl) return await downloadVideo(videoItag, videoDetails);
 
 		videoDetails.availableCountries = null;
 		videoDetails.keywords = null;
@@ -961,7 +958,7 @@ app.get('/movies', async function (req, res) {
 
 	fs.readdir(directoryPath + title, function (err, files) {
 		if (err) {
-			if (title.endsWith('.mkv')) {
+			if (title.endsWith('.mkv') || title.endsWith('.mp4')) {
 				return res.render('movies', {
 					JSONresults: encodeURIComponent(JSON.stringify({ results })),
 					results: results,
