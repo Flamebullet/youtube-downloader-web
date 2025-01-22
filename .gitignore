@@ -2,5 +2,5 @@ node_modules
 certs
 .env
 tmp
-cookie.txt
+cookie.json
 movies

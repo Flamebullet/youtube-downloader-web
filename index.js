@@ -319,7 +319,7 @@ app.get('/download', async (req, res) => {
 				audio = ytdl(videoDetails.video_url, {
 					filter: 'audioonly',
 					quality: 'highestaudio',
-					playerClients: ['IOS', 'WEB_CREATOR']
+					playerClients: ['ANDROID', 'IOS']
 				}).on('progress', (_, downloaded, total) => {
 					tracker.audio = { downloaded, total };
 				});
@@ -328,7 +328,7 @@ app.get('/download', async (req, res) => {
 			if (videoSelect == 'on') {
 				video = ytdl(videoDetails.video_url, {
 					quality: `${videoItag}`,
-					playerClients: ['IOS', 'WEB_CREATOR']
+					playerClients: ['ANDROID', 'IOS']
 				}).on('progress', (_, downloaded, total) => {
 					tracker.video = { downloaded, total };
 				});
