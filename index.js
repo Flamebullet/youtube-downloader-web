@@ -23,7 +23,7 @@ const sql = postgres(databaseUrl, {
 });
 
 // agent should be created once if you don't want to change your cookie
-const agent = ytdl.createAgent(JSON.parse(fs.readFileSync('cookie.txt', 'utf8')));
+const agent = ytdl.createAgent(JSON.parse(fs.readFileSync('cookie.json')));
 
 // Code to serve images
 app.set('views', path.join(__dirname, 'views'));
@@ -319,7 +319,9 @@ app.get('/download', async (req, res) => {
 				audio = ytdl(videoDetails.video_url, {
 					filter: 'audioonly',
 					quality: 'highestaudio',
-					highWaterMark: 1 << 25
+					// highWaterMark: 1 << 25
+					// agent: agent,
+					playerClients: ['IOS', 'WEB_CREATOR']
 				}).on('progress', (_, downloaded, total) => {
 					tracker.audio = { downloaded, total };
 				});
@@ -327,7 +329,9 @@ app.get('/download', async (req, res) => {
 
 			if (videoSelect == 'on') {
 				video = ytdl(videoDetails.video_url, {
-					quality: `${videoItag}`
+					quality: `${videoItag}`,
+					// agent: agent,
+					playerClients: ['IOS', 'WEB_CREATOR']
 				}).on('progress', (_, downloaded, total) => {
 					tracker.video = { downloaded, total };
 				});
