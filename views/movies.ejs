@@ -21,7 +21,7 @@
 			<% } %>
 		</table>
 		<div>
-			<video style="display: none; max-width: 100%; max-height: 90%" id="video" controls autoplay muted></video>
+			<video style="display: none; max-height: 100vh" id="video" controls></video>
 		</div>
 	</body>
 	<script>
@@ -36,7 +36,7 @@
 			videoElement.volume = 1.0;
 			const source = document.createElement('source');
 			source.src = video;
-			// source.type = 'video/mkv';
+			source.type = 'video/mp4';
 			videoElement.appendChild(source);
 		}
 	</script>
