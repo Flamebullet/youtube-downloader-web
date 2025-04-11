@@ -86,8 +86,8 @@ async function downloadImage(url, path) {
 }
 
 // OUR ROUTES WILL GO HERE
-const key = fs.readFileSync(`${__dirname}\\certs\\key.pem`);
-const cert = fs.readFileSync(`${__dirname}\\certs\\cert.pem`);
+const key = fs.readFileSync(`${__dirname}\\certs\\domain.key`);
+const cert = fs.readFileSync(`${__dirname}\\certs\\domain.crt`);
 const server = https.createServer({ key: key, cert: cert }, app);
 
 const port = 443;
