@@ -9,17 +9,17 @@
 	"author": "Flame",
 	"license": "ISC",
 	"dependencies": {
-		"@distube/ytdl-core": "^4.16.10",
-		"axios": "^1.9.0",
+		"@distube/ytdl-core": "^4.16.12",
+		"axios": "^1.11.0",
 		"child_process": "^1.0.2",
-		"dotenv": "^16.5.0",
+		"dotenv": "^17.2.1",
 		"ejs": "^3.1.10",
 		"express": "^5.1.0",
 		"ffmpeg-static": "^5.2.0",
 		"fs": "^0.0.1-security",
-		"postgres": "^3.4.5",
+		"postgres": "^3.4.7",
 		"spotify-info": "^1.1.9",
-		"youtubei": "^1.6.7",
+		"youtubei": "^1.7.0",
 		"ytdl-core": "^4.11.5"
 	}
 }
