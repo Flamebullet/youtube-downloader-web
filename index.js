@@ -3,7 +3,8 @@ const https = require('https');
 const path = require('path');
 const app = express();
 // Downloading/file management modules
-// const ytdl = require('ytdl-core');
+const { YtDlp } = require('ytdlp-nodejs');
+const ytdlp = new YtDlp();
 const ytdl = require('@distube/ytdl-core');
 const fs = require('fs');
 const cp = require('child_process');
@@ -21,9 +22,6 @@ const progbarobj = {};
 const sql = postgres(databaseUrl, {
 	idle_timeout: 5
 });
-
-// agent should be created once if you don't want to change your cookie
-const agent = ytdl.createAgent(JSON.parse(fs.readFileSync('cookie.json')));
 
 // Code to serve images
 app.set('views', path.join(__dirname, 'views'));
@@ -283,7 +281,7 @@ app.get('/download', async (req, res) => {
 		if (url.match(youtubePlaylistRegex))
 			return res.redirect(`/playlist?url=${encodeURIComponent(url)}&video=${videoSelect}&audio=${audioSelect}&thumbnail=${thumbnailSelect}`);
 		// Create the video quality selection dropdown menu
-		const video = await ytdl.getInfo(url, agent).catch(() => {
+		const video = await ytdl.getInfo(url).catch(() => {
 			return res.redirect(`/search?url=${encodeURIComponent(url)}&video=${videoSelect}&audio=${audioSelect}&thumbnail=${thumbnailSelect}`);
 		});
 		if (!video) return;
@@ -309,26 +307,35 @@ app.get('/download', async (req, res) => {
 		async function downloadVideo(videoItag, videoDetails) {
 			const tracker = {
 				start: Date.now(),
-				audio: { downloaded: 0, total: Infinity },
-				video: { downloaded: 0, total: Infinity },
+				audio: {},
+				video: {},
 				merged: { frame: 0, speed: '0x', fps: 0 }
 			};
 
 			let audio, video;
 			if (audioSelect == 'on') {
-				audio = ytdl(videoDetails.video_url, {
-					filter: 'audioonly',
-					quality: 'highestaudio'
-				}).on('progress', (_, downloaded, total) => {
-					tracker.audio = { downloaded, total };
+				audio = ytdlp.stream(videoDetails.video_url, {
+					format: {
+						filter: 'audioonly',
+						quality: `highest`
+					},
+					onProgress: (progress) => {
+						tracker.audio = progress;
+					}
 				});
 			}
 
 			if (videoSelect == 'on') {
-				video = ytdl(videoDetails.video_url, {
-					quality: `${videoItag}`
-				}).on('progress', (_, downloaded, total) => {
-					tracker.video = { downloaded, total };
+				if (videoItag === undefined) videoItag = 'highest';
+				video = ytdlp.stream(videoDetails.video_url, {
+					format: {
+						filter: 'videoonly',
+						type: 'mp4',
+						quality: `${videoItag}`
+					},
+					onProgress: (progress) => {
+						tracker.video = progress;
+					}
 				});
 			}
 
@@ -350,11 +357,11 @@ app.get('/download', async (req, res) => {
 			const showProgress = () => {
 				const toMB = (i) => (i / 1024 / 1024).toFixed(2);
 
-				let progress = `Audio  | ${((tracker.audio.downloaded / tracker.audio.total) * 100).toFixed(2)}% processed `;
-				progress += `(${toMB(tracker.audio.downloaded)}MB of ${toMB(tracker.audio.total)}MB).${' '.repeat(10)}\n`;
+				let progress = `Audio  | ${tracker.audio.percentage_str} processed `;
+				progress += `(${tracker.audio.downloaded_str} / ${tracker.audio.total_str}) @ ${tracker.audio.speed_str}.${' '.repeat(10)}\n`;
 
-				progress += `Video  | ${((tracker.video.downloaded / tracker.video.total) * 100).toFixed(2)}% processed `;
-				progress += `(${toMB(tracker.video.downloaded)}MB of ${toMB(tracker.video.total)}MB).${' '.repeat(10)}\n`;
+				progress += `Video  | ${tracker.video.percentage_str}% processed `;
+				progress += `(${tracker.video.downloaded_str} / ${tracker.video.total_str}) @ ${tracker.video.speed_str}.${' '.repeat(10)}\n`;
 
 				progress += `Merged | processing frame ${tracker.merged.frame} `;
 				progress += `(at ${tracker.merged.fps} fps → ${tracker.merged.speed}).${' '.repeat(10)}\n\n`;
@@ -887,7 +894,14 @@ app.get('/download', async (req, res) => {
 
 		title = videoDetails.title;
 
-		if (videoSelect == 'on') videoFormats = ytdl.filterFormats(video.formats, 'videoonly');
+		if (videoSelect == 'on') {
+			videoFormats = Array.from(
+				ytdl.filterFormats(video.formats, 'videoonly').map((format) => {
+					return format.qualityLabel;
+				})
+			);
+			videoFormats = [...new Set(videoFormats)];
+		}
 
 		return res.render('download', {
 			url: video.videoDetails.embed.iframeUrl,
