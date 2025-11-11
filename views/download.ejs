@@ -159,7 +159,6 @@
                                     <div style="overflow: hidden;max-width: 300px;text-overflow: ellipsis;font-size: 1.1rem">${author.name}</div><% if (verified) { %><div style="width: 18px; height: 18px; fill: currentcolor; align-self: center; padding-left:3px;"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" focusable="false" style="pointer-events: none; display: block; width: 100%; height: 100%;"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zM9.8 17.3l-4.2-4.1L7 11.8l2.8 2.7L17 7.4l1.4 1.4-8.6 8.5z"></path></svg></div><% } %>
                                 </div>
                             </a>
-                            <div style="margin: 0px; font-size: 0.8rem"><%= subscribers %> subscribers</div>
                         </td>
                     </table>
                     `;
@@ -212,7 +211,7 @@
 				}
 
 				// add video stats to description box
-				document.getElementById('video_stats').innerHTML = `<p style="font-size: 0.9rem">${formatNumber(videoDetails.viewCount)} views • ${timeAgo(
+				document.getElementById('video_stats').innerHTML = `<p style="font-size: 0.9rem">${formatNumber(videoDetails?.viewCount)} views • ${timeAgo(
 					videoDetails.uploadDate
 				)}</p>`;
 
@@ -241,15 +240,15 @@
 						content.classList.remove('content-collapsed');
 						content.classList.add('content-expanded');
 						document.getElementById('video_stats').innerHTML = `<p style="font-size: 0.9rem">${formatNumber(
-							videoDetails.viewCount
-						)} views • ${formatDate(new Date(videoDetails.uploadDate))}</p>`;
+							videoDetails?.viewCount
+						)} views • ${formatDate(new Date(videoDetails?.uploadDate))}</p>`;
 						button.textContent = 'Show Less';
 					} else {
 						content.classList.remove('content-expanded');
 						content.classList.add('content-collapsed');
 						document.getElementById('video_stats').innerHTML = `<p style="font-size: 0.9rem">${formatNumber(
-							videoDetails.viewCount
-						)} views • ${timeAgo(videoDetails.uploadDate)}</p>`;
+							videoDetails?.viewCount
+						)} views • ${timeAgo(videoDetails?.uploadDate)}</p>`;
 						button.textContent = 'Show More';
 					}
 				});

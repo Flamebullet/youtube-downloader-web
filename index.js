@@ -892,8 +892,7 @@ app.get('/download', async (req, res) => {
 
 		videoDetails.availableCountries = null;
 		videoDetails.keywords = null;
-		let subscribers = convertNum(videoDetails.author.subscriber_count);
-
+		// let subscribers = convertNum(videoDetails?.author?.subscriber_count);
 		title = videoDetails.title;
 
 		if (videoSelect == 'on') {
@@ -909,7 +908,7 @@ app.get('/download', async (req, res) => {
 			url: video.videoDetails.embed.iframeUrl,
 			title: title,
 			author: encodeURIComponent(JSON.stringify(videoDetails.author)),
-			subscribers: subscribers,
+			// subscribers: subscribers,
 			verified: videoDetails.author.verified,
 			videoFormats: videoFormats,
 			video: videoSelect,
