@@ -147,11 +147,11 @@ app.get('/search', async (req, res) => {
 					result.client = null;
 					result.thumbnail = result.thumbnails[0].url;
 					result.thumbnails = null;
-					result.channel.client = null;
-					result.channel.shorts = null;
-					result.channel.live = null;
-					result.channel.videos = null;
-					result.channel.playlists = null;
+					result.channel?.client = null;
+					result.channel?.shorts = null;
+					result.channel?.live = null;
+					result.channel?.videos = null;
+					result.channel?.playlists = null;
 					result.url = `https://www.youtube.com/watch?v=${result.id}`;
 					result.timestamp = secToStr(result.duration);
 				}
@@ -360,7 +360,7 @@ app.get('/download', async (req, res) => {
 				let progress = `Audio  | ${tracker.audio.percentage_str} processed `;
 				progress += `(${tracker.audio.downloaded_str} / ${tracker.audio.total_str}) @ ${tracker.audio.speed_str}.${' '.repeat(10)}\n`;
 
-				progress += `Video  | ${tracker.video.percentage_str}% processed `;
+				progress += `Video  | ${tracker.video.percentage_str} processed `;
 				progress += `(${tracker.video.downloaded_str} / ${tracker.video.total_str}) @ ${tracker.video.speed_str}.${' '.repeat(10)}\n`;
 
 				progress += `Merged | processing frame ${tracker.merged.frame} `;
