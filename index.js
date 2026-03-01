@@ -153,10 +153,12 @@ app.get('/search', async (req, res) => {
 						result.channel.live = null;
 						result.channel.videos = null;
 						result.channel.playlists = null;
+						result.channel.posts = null;
 					}
 					result.url = `https://www.youtube.com/watch?v=${result.id}`;
 					result.timestamp = secToStr(result.duration);
 				}
+				console.log(results);
 
 				let searchCont;
 				if (r.continuation) {
