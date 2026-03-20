@@ -158,7 +158,6 @@ app.get('/search', async (req, res) => {
 					result.url = `https://www.youtube.com/watch?v=${result.id}`;
 					result.timestamp = secToStr(result.duration);
 				}
-				console.log(results);
 
 				let searchCont;
 				if (r.continuation) {
@@ -279,13 +278,13 @@ app.get('/download', async (req, res) => {
 			return res.redirect(`/?err=${encodeURIComponent('Invalid Spotify Track URL entered!')}`);
 		}
 	}
-
+	console.log(url);
 	try {
 		const youtubePlaylistRegex = /^\<?(https?:\/\/)?((w{3}\.)|(music\.))?(youtube\.com\/(playlist\?list\=))(?<urlkey>[\S]{23,41})\>?/gm;
 		if (url.match(youtubePlaylistRegex))
 			return res.redirect(`/playlist?url=${encodeURIComponent(url)}&video=${videoSelect}&audio=${audioSelect}&thumbnail=${thumbnailSelect}`);
 		// Create the video quality selection dropdown menu
-		const video = await ytdl.getInfo(url).catch(() => {
+		const video = await ytdl.getBasicInfo(url).catch(() => {
 			return res.redirect(`/search?url=${encodeURIComponent(url)}&video=${videoSelect}&audio=${audioSelect}&thumbnail=${thumbnailSelect}`);
 		});
 		if (!video) return;
