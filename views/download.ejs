@@ -429,7 +429,7 @@
 			}
 
 			let videoDetails = JSON.parse(decodeURIComponent(`<%- videoDetails %>`));
-			const timeMax = BigInt(videoDetails.lengthSeconds);
+			const timeMax = BigInt(videoDetails.duration);
 
 			// Prepopulate the start and end times
 			document.getElementById('timeStart').value = '0:00';
