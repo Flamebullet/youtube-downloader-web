@@ -284,8 +284,9 @@ app.get('/download', async (req, res) => {
 		if (url.match(youtubePlaylistRegex))
 			return res.redirect(`/playlist?url=${encodeURIComponent(url)}&video=${videoSelect}&audio=${audioSelect}&thumbnail=${thumbnailSelect}`);
 		// Create the video quality selection dropdown menu
+		let videoDetails;
 		if (url.startsWith('https://www.youtube.com/watch?v=')) {
-			const videoDetails = await youtube.getVideo(url.substring('https://www.youtube.com/watch?v='.length)).catch(() => {
+			videoDetails = await youtube.getVideo(url.substring('https://www.youtube.com/watch?v='.length)).catch(() => {
 				return res.redirect(`/search?url=${encodeURIComponent(url)}&video=${videoSelect}&audio=${audioSelect}&thumbnail=${thumbnailSelect}`);
 			});
 		} else {
