@@ -278,35 +278,31 @@ app.get('/download', async (req, res) => {
 			return res.redirect(`/?err=${encodeURIComponent('Invalid Spotify Track URL entered!')}`);
 		}
 	}
-	console.log(url);
+
 	try {
 		const youtubePlaylistRegex = /^\<?(https?:\/\/)?((w{3}\.)|(music\.))?(youtube\.com\/(playlist\?list\=))(?<urlkey>[\S]{23,41})\>?/gm;
 		if (url.match(youtubePlaylistRegex))
 			return res.redirect(`/playlist?url=${encodeURIComponent(url)}&video=${videoSelect}&audio=${audioSelect}&thumbnail=${thumbnailSelect}`);
 		// Create the video quality selection dropdown menu
-		const video = await ytdl.getBasicInfo(url).catch(() => {
+		const videoDetails = await youtube.getVideo(url.substring('https://www.youtube.com/watch?v='.length)).catch(() => {
 			return res.redirect(`/search?url=${encodeURIComponent(url)}&video=${videoSelect}&audio=${audioSelect}&thumbnail=${thumbnailSelect}`);
 		});
-		if (!video) return;
+		if (!videoDetails) return;
 
-		const videoDetails = video.videoDetails;
-		let target = ' - Topic';
-		let pos = videoDetails.ownerChannelName.lastIndexOf(target);
-		if (pos !== -1) {
-			videoDetails.ownerChannelName = videoDetails.ownerChannelName.substring(0, pos) + videoDetails.ownerChannelName.substring(pos + target.length);
+		if (videoDetails.channel) {
+			let target = ' - Topic';
+			let pos = videoDetails.channel.name.lastIndexOf(target);
+			if (pos !== -1) {
+				videoDetails.channel.name = videoDetails.channel.name.substring(0, pos) + videoDetails.channel.name.substring(pos + target.length);
+			}
+		} else {
+			videoDetails.channel = {};
+			videoDetails.channel.name = videoDetails.channels.map((channel) => channel.name).join(', ');
 		}
 
-		const songCard = video.response.engagementPanels[1].engagementPanelSectionListRenderer.content.structuredDescriptionContentRenderer?.items[2]
-			? video.response.engagementPanels[1].engagementPanelSectionListRenderer.content.structuredDescriptionContentRenderer?.items[2]
-					.horizontalCardListRenderer?.cards
-			: null;
-		const artist =
-			songCard?.length == 1 && songCard[0].videoAttributeViewModel.subtitle.toLowerCase() != videoDetails.ownerChannelName.toLowerCase()
-				? `${videoDetails.ownerChannelName}, ${songCard[0].videoAttributeViewModel.subtitle}`
-				: videoDetails.ownerChannelName;
+		const artist = videoDetails.channel.name;
 
-		if ((videoDetails.isLiveContent || videoDetails.isLive) && videoDetails.liveBroadcastDetails.isLiveNow)
-			return res.redirect(`/?err=${encodeURIComponent('Selected video is a live stream, please select a different video.')}`);
+		if (videoDetails.isLiveContent) return res.redirect(`/?err=${encodeURIComponent('Selected video is a live stream, please select a different video.')}`);
 		async function downloadVideo(videoItag, videoDetails) {
 			const tracker = {
 				start: Date.now(),
@@ -317,7 +313,7 @@ app.get('/download', async (req, res) => {
 
 			let audio, video;
 			if (audioSelect == 'on') {
-				audio = ytdlp.stream(videoDetails.video_url, {
+				audio = ytdlp.stream('https://www.youtube.com/watch?v=' + videoDetails.id, {
 					format: {
 						filter: 'audioonly',
 						quality: `highest`
@@ -330,7 +326,7 @@ app.get('/download', async (req, res) => {
 
 			if (videoSelect == 'on') {
 				if (videoItag === undefined) videoItag = 'highest';
-				video = ytdlp.stream(videoDetails.video_url, {
+				video = ytdlp.stream('https://www.youtube.com/watch?v=' + videoDetails.id, {
 					format: {
 						filter: 'videoonly',
 						type: 'mp4',
@@ -341,7 +337,6 @@ app.get('/download', async (req, res) => {
 					}
 				});
 			}
-
 			let progressbarHandle = null;
 			const progressbarInterval = 1000;
 
@@ -437,7 +432,7 @@ app.get('/download', async (req, res) => {
 			const timeDiff = timeStart && timeEnd && compareTimes(timeStart, timeEnd) < 0 ? getTimeDifference() : null;
 			if (audioSelect == 'on' && videoSelect == 'on') {
 				// Start the ffmpeg child process
-				if (timeDiff && parseInt(videoDetails.lengthSeconds) > timeToSeconds(timeDiff)) {
+				if (timeDiff && parseInt(videoDetails.duration) > timeToSeconds(timeDiff)) {
 					const ffmpegProcess = cp.spawn(
 						ffmpeg,
 						[
@@ -588,7 +583,7 @@ app.get('/download', async (req, res) => {
 						`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`
 					);
 
-					if (timeDiff && parseInt(videoDetails.lengthSeconds) > timeToSeconds(timeDiff)) {
+					if (timeDiff && parseInt(videoDetails.duration) > timeToSeconds(timeDiff)) {
 						const ffmpegProcess = cp.spawn(
 							ffmpeg,
 							[
@@ -712,7 +707,7 @@ app.get('/download', async (req, res) => {
 						audio.pipe(ffmpegProcess.stdio[4]);
 					}
 				} else {
-					if (timeDiff && parseInt(videoDetails.lengthSeconds) > timeToSeconds(timeDiff)) {
+					if (timeDiff && parseInt(videoDetails.duration) > timeToSeconds(timeDiff)) {
 						const ffmpegProcess = cp.spawn(
 							ffmpeg,
 							[
@@ -891,9 +886,10 @@ app.get('/download', async (req, res) => {
 
 		if (dl) return await downloadVideo(videoItag, videoDetails);
 
-		videoDetails.availableCountries = null;
-		videoDetails.keywords = null;
-		// let subscribers = convertNum(videoDetails?.author?.subscriber_count);
+		let subscribers = '';
+		if (videoDetails?.channel?.subscriberCount != undefined) {
+			subscribers = convertNum(videoDetails?.channel?.subscriberCount);
+		}
 		title = videoDetails.title;
 
 		if (videoSelect == 'on') {
@@ -904,17 +900,32 @@ app.get('/download', async (req, res) => {
 			);
 			videoFormats = [...new Set(videoFormats)];
 		}
+		if (videoDetails.channels) {
+			videoDetails.author = videoDetails.channels[0];
+			videoDetails.author.subscriberCount = videoDetails.author.subscriberCount.split('• ⁨')[1];
+		} else {
+			videoDetails.author = videoDetails.channel;
+		}
+		videoDetails.author.videos = null;
+		videoDetails.author.shorts = null;
+		videoDetails.author.live = null;
+		videoDetails.author.playlists = null;
+		videoDetails.author.posts = null;
+		videoDetails.channels = null;
+		videoDetails.comments = null;
+		videoDetails.related = null;
+		videoDetails.client = null;
 
 		return res.render('download', {
-			url: video.videoDetails.embed.iframeUrl,
+			url: 'https://www.youtube.com/embed/' + videoDetails.id,
 			title: title,
 			author: encodeURIComponent(JSON.stringify(videoDetails.author)),
-			// subscribers: subscribers,
-			verified: videoDetails.author.verified,
+			subscribers: subscribers,
 			videoFormats: videoFormats,
 			video: videoSelect,
 			audio: audioSelect,
 			thumbnail: thumbnailSelect,
+			verified: false,
 			videoDetails: encodeURIComponent(JSON.stringify(videoDetails))
 		});
 	} catch (err) {
