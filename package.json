@@ -10,7 +10,7 @@
 	"license": "ISC",
 	"dependencies": {
 		"@distube/ytdl-core": "^4.16.12",
-		"axios": "^1.13.5",
+		"axios": "^1.15.2",
 		"child_process": "^1.0.2",
 		"dotenv": "^17.3.1",
 		"ejs": "^4.0.1",
@@ -19,7 +19,7 @@
 		"fs": "^0.0.1-security",
 		"postgres": "^3.4.8",
 		"spotify-info": "^1.1.9",
-		"youtubei": "^1.8.5",
+		"youtubei": "^1.8.9",
 		"ytdl-core": "^4.11.5",
 		"ytdlp-nodejs": "^3.4.4"
 	}

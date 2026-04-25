@@ -21,7 +21,7 @@
 			<table id="result-table">
 				<tbody id="results">
 					<% function convertNum(num) { let result; if (num >= 1000000) { result = (num / 1000000).toFixed(1) + 'M'; } else if (num >= 1000) { result
-					= (num / 1000).toFixed(1) + 'K'; } else { result = num.toString(); } return result.replace('.0', ''); } %> <% for (var i in results) { %>
+					= (num / 1000).toFixed(1) + 'K'; } else { result = num.toString(); } return result.replace('.0', ''); } %> <% for (var i in results) { if (results[i].viewCount == undefined) {continue}%>
 					<tr id="search-table">
 						<td class="thumbnail">
 							<div class="thumbnail-container">

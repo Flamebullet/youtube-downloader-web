@@ -301,8 +301,8 @@
 							<tr>
 								<td>
 									<select id="video-quality">
-										<%for (i in videoFormats) { let videos = videoFormats[i];%>
-										<option value="<%=videos%>"><%=videos%></option>
+										<%for (i in videoFormats) { if(videoFormats[i] == undefined) continue; let videos = videoFormats[i].description;let itag = videoFormats[i].itag;%>
+										<option value="<%=itag%>"><%=videos%></option>
 										<%}%>
 									</select>
 								</td>
