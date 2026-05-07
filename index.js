@@ -117,6 +117,11 @@ app.get('/search', async (req, res) => {
 			result.client = null;
 			result.thumbnail = result.thumbnails[0].url;
 			result.thumbnails = null;
+			result.shorts = null;
+			result.live = null;
+			result.videos = null;
+			result.playlists = null;
+			result.posts = null;
 			if (result.channel != undefined) {
 				result.channel.client = null;
 				result.channel.shorts = null;
@@ -617,7 +622,7 @@ app.get('/download', async (req, res) => {
 								'-qscale:a',
 								'0',
 								'-y',
-								`${filename}.mp3`
+								`${filename}tmp.mp3`
 							],
 							{
 								windowsHide: true,
@@ -648,7 +653,7 @@ app.get('/download', async (req, res) => {
 									'pipe:3',
 									// Set inputs
 									'-i',
-									`${__dirname}\\tmp\\test.mp3`,
+									`${filename}tmp.mp3`,
 									'-i',
 									`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`,
 									'-map',
@@ -662,7 +667,7 @@ app.get('/download', async (req, res) => {
 									'-metadata',
 									`artist=${artist}`, // Set performer (artist)
 									'-metadata',
-									`album_artist=${videoDetails.title}`, // Set album name
+									`album_artist=${artist}`, // Set album name
 									'-metadata',
 									`album=${videoDetails.title}`, // Set album name
 									'-y',
@@ -684,7 +689,7 @@ app.get('/download', async (req, res) => {
 							ffmpegProcess.on('close', async () => {
 								clearInterval(progressbarHandle);
 								Object.assign(progbarobj, { [uid]: `Done ${encodeURIComponent(filename)}` });
-								fs.unlink(`${filename}.mp3`, () => {
+								fs.unlink(`${filename}tmp.mp3`, () => {
 									return;
 								});
 								fs.unlink(`${__dirname}\\tmp\\${videoDetails.title.replaceAll(/\*|\.|\?|\"|\/|\\|\:|\||\<|\>/gi, '')}.jpg`, () => {
@@ -782,6 +787,8 @@ app.get('/download', async (req, res) => {
 								'0',
 								'-metadata',
 								`title=${videoDetails.title}`, // Set track name (title)
+								'-metadata',
+								`album_artist=${artist}`, // Set album name
 								'-metadata',
 								`artist=${artist}`, // Set performer (artist)
 								'-metadata',
