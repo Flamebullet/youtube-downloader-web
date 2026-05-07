@@ -662,6 +662,8 @@ app.get('/download', async (req, res) => {
 									'-metadata',
 									`artist=${artist}`, // Set performer (artist)
 									'-metadata',
+									`album_artist=${videoDetails.title}`, // Set album name
+									'-metadata',
 									`album=${videoDetails.title}`, // Set album name
 									'-y',
 									filename
