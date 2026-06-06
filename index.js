@@ -944,14 +944,17 @@ app.get('/download', async (req, res) => {
 		title = videoDetails.title;
 		if (videoSelect == 'on') {
 			videoFormats = Array.from(
-				(await ytdlp.getFormatsAsync('https://www.youtube.com/watch?v=9qkpcLK422o', { cookies: './cookies.txt' })).formats.map((format) => {
-					if (format.video_ext != 'none') {
-						return {
-							itag: format.format_id,
-							description: `${format.format_note} | ${format.vcodec} | ${format.vbr}kbps`
-						};
+				(await ytdlp.getFormatsAsync('https://www.youtube.com/watch?v=' + videoDetails.id, { rawArgs: ['--cookies', './cookies.txt'] })).formats.map(
+					(format) => {
+						console.log(format);
+						if (format.video_ext != 'none') {
+							return {
+								itag: format.format_id,
+								description: `${format.resolution} | ${format.vcodec} | ${format.vbr}kbps`
+							};
+						}
 					}
-				})
+				)
 			);
 			videoFormats = [...new Set(videoFormats)];
 		}
