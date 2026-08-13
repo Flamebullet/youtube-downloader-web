@@ -337,7 +337,7 @@ app.get('/download', async (req, res) => {
 			let audio, video;
 			if (audioSelect == 'on') {
 				audio = ytdlp.stream('https://www.youtube.com/watch?v=' + videoDetails.id, {
-					rawArgs: ['--cookies', './cookies.txt'],
+					// rawArgs: ['--cookies', './cookies.txt'],
 					format: {
 						filter: 'audioonly',
 						quality: `highest`
@@ -351,7 +351,8 @@ app.get('/download', async (req, res) => {
 			if (videoSelect == 'on') {
 				if (videoItag === undefined) videoItag = 'highest';
 				video = ytdlp.stream('https://www.youtube.com/watch?v=' + videoDetails.id, {
-					rawArgs: ['--cookies', './cookies.txt', '-f', `${videoItag}`],
+					// rawArgs: ['--cookies', './cookies.txt', '-f', `${videoItag}`],
+					rawArgs: ['-f', `${videoItag}`],
 					onProgress: (progress) => {
 						tracker.video = progress;
 					}
@@ -946,7 +947,6 @@ app.get('/download', async (req, res) => {
 			videoFormats = Array.from(
 				(await ytdlp.getFormatsAsync('https://www.youtube.com/watch?v=' + videoDetails.id, { rawArgs: ['--cookies', './cookies.txt'] })).formats.map(
 					(format) => {
-						console.log(format);
 						if (format.video_ext != 'none') {
 							return {
 								itag: format.format_id,
