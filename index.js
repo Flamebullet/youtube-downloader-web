@@ -1051,7 +1051,7 @@ app.get('/movies', async function (req, res) {
 					video: `${title.replace(/\\/g, '/')}`
 				});
 			} else if (title.endsWith('.apk')) {
-				res.download(directoryPath + title, async (err) => {});
+				return res.download(directoryPath + title, async (err) => {});
 			} else {
 				return console.log('Unable to scan directory: ' + err);
 			}
