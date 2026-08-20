@@ -1069,14 +1069,15 @@ app.get('/files', async function (req, res) {
 	const title = req.query.title ? req.query.title : '';
 	const directoryPath = `${__dirname}\\public\\files`;
 	let results = [];
-	console.log(directoryPath + title);
 	fs.readdir(directoryPath + title, function (err, files) {
 		if (err) {
 			return res.download(directoryPath + title, async (err) => {});
 		}
-		files.forEach(function (file) {
-			results.push(file);
-		});
+		if (title != '') {
+			files.forEach(function (file) {
+				results.push(file);
+			});
+		}
 		return res.render('files', {
 			JSONresults: encodeURIComponent(JSON.stringify({ results })),
 			results: results,
