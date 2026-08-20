@@ -1077,7 +1077,7 @@ app.get('/files', async function (req, res) {
 		files.forEach(function (file) {
 			results.push(file);
 		});
-		return res.render('movies', {
+		return res.render('files', {
 			JSONresults: encodeURIComponent(JSON.stringify({ results })),
 			results: results,
 			path: `${title}\\`,
