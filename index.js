@@ -1040,7 +1040,7 @@ app.get('/movies', async function (req, res) {
 	const title = req.query.title ? req.query.title : '';
 	const directoryPath = `${__dirname}\\public\\movies`;
 	let results = [];
-
+	console.log(directoryPath + title);
 	fs.readdir(directoryPath + title, function (err, files) {
 		if (err) {
 			if (title.endsWith('.mkv') || title.endsWith('.mp4')) {
