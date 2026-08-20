@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Movie</title>
+		<meta
+			http-equiv="Content-Security-Policy"
+			content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; connect-src 'self'; font-src 'self'; object-src 'none'; frame-src 'none'; worker-src 'self'; base-uri 'self'; form-action 'self'"
+		/>
+		<link rel="stylesheet" href="/css/movies.css" />
+	</head>
+	<body>
+		<div class="container">
+			<a href="/files">Home</a>
+			<table id="result-table">
+				<tr>
+					<td>Titles</td>
+				</tr>
+				<% for (var i in results) { %>
+				<tr>
+					<td><a href="/files?title=<%= path %><%= results[i] %>"><%= results[i] %></a></td>
+				</tr>
+				<% } %>
+			</table>
+			<!-- <div class="video-container">
+				<video id="video" controls></video>
+			</div> -->
+		</div>
+	</body>
+	<!-- <script>
+		let video = `<%= video %>`;
+		if (video) {
+			video = `/files` + video;
+			const table = document.getElementById('result-table');
+			table.style.display = 'none';
+			const videoElement = document.getElementById('video');
+			videoElement.style.display = 'block';
+			videoElement.muted = false;
+			videoElement.volume = 1.0;
+			const source = document.createElement('source');
+			source.src = video;
+			source.type = 'video/mp4';
+			videoElement.appendChild(source);
+		}
+	</script> -->
+	<!-- <link rel="stylesheet" href="/css/movies.css" /> -->
+</html>

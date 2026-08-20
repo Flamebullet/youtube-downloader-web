@@ -1040,7 +1040,6 @@ app.get('/movies', async function (req, res) {
 	const title = req.query.title ? req.query.title : '';
 	const directoryPath = `${__dirname}\\public\\movies`;
 	let results = [];
-	console.log(directoryPath + title);
 	fs.readdir(directoryPath + title, function (err, files) {
 		if (err) {
 			if (title.endsWith('.mkv') || title.endsWith('.mp4')) {
@@ -1050,11 +1049,30 @@ app.get('/movies', async function (req, res) {
 					path: `${title}\\`,
 					video: `${title.replace(/\\/g, '/')}`
 				});
-			} else if (title.endsWith('.apk')) {
-				return res.download(directoryPath + title, async (err) => {});
 			} else {
 				return console.log('Unable to scan directory: ' + err);
 			}
+		}
+		files.forEach(function (file) {
+			results.push(file);
+		});
+		return res.render('movies', {
+			JSONresults: encodeURIComponent(JSON.stringify({ results })),
+			results: results,
+			path: `${title}\\`,
+			video: null
+		});
+	});
+});
+
+app.get('/files', async function (req, res) {
+	const title = req.query.title ? req.query.title : '';
+	const directoryPath = `${__dirname}\\public\\files`;
+	let results = [];
+	console.log(directoryPath + title);
+	fs.readdir(directoryPath + title, function (err, files) {
+		if (err) {
+			return res.download(directoryPath + title, async (err) => {});
 		}
 		files.forEach(function (file) {
 			results.push(file);
