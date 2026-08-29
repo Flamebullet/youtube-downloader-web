@@ -204,7 +204,7 @@ app.get('/playlist', async (req, res) => {
 	const { url, video, audio, thumbnail } = req.query;
 
 	function playlistUrlToId(url) {
-		const youtubePlaylistRegex = /^\<?(https?:\/\/)?((w{3}\.)|(music\.))?(youtube\.com\/(playlist\?list\=))(?<urlkey>[\S]{23,41})\>?/gm;
+		const youtubePlaylistRegex = /^\<?(https?:\/\/)?((w{3}\.)|(music\.))?(youtube\.com\/(playlist\?list\=))(?<urlkey>[^\&\s]{23,41})&?\>?/gm;
 		const urlkey = youtubePlaylistRegex.exec(url);
 		return urlkey?.groups?.urlkey;
 	}
@@ -234,6 +234,7 @@ app.get('/playlist', async (req, res) => {
 					result.channel.live = null;
 					result.channel.videos = null;
 					result.channel.playlists = null;
+					result.channel.posts = null;
 					result.url = `https://www.youtube.com/watch?v=${result.id}`;
 					result.timestamp = secToStr(result.duration);
 					result.captions = null;
@@ -296,14 +297,17 @@ app.get('/download', async (req, res) => {
 		}
 	}
 	try {
-		let video;
-		const youtubePlaylistRegex = /^\<?(https?:\/\/)?((w{3}\.)|(music\.))?(youtube\.com\/(playlist\?list\=))(?<urlkey>[\S]{23,41})\>?/gm;
+		const youtubePlaylistRegex = /^\<?(https?:\/\/)?((w{3}\.)|(music\.))?(youtube\.com\/(playlist\?list\=))(?<urlkey>[^\&\s]{23,41})&?\>?/gm;
+		const youtubeVideoRegex = /^\<?(https?:\/\/)?((w{3}\.)|(music\.)|(youtu\.))?((youtube\.com\/(watch\?v\=))|(be\/))(?<urlkey>[^\&\s]{11})&?\>?/gm;
+
 		if (url.match(youtubePlaylistRegex))
 			return res.redirect(`/playlist?url=${encodeURIComponent(url)}&video=${videoSelect}&audio=${audioSelect}&thumbnail=${thumbnailSelect}`);
+
 		// Create the video quality selection dropdown menu
 		let videoDetails;
-		if (url.startsWith('https://www.youtube.com/watch?v=')) {
-			videoDetails = await youtube.getVideo(url.substring('https://www.youtube.com/watch?v='.length)).catch(() => {
+		if (url.match(youtubeVideoRegex)) {
+			const urlkey = youtubeVideoRegex.exec(url);
+			videoDetails = await youtube.getVideo(urlkey?.groups?.urlkey).catch(() => {
 				return res.redirect(`/search?url=${encodeURIComponent(url)}&video=${videoSelect}&audio=${audioSelect}&thumbnail=${thumbnailSelect}`);
 			});
 		} else {
@@ -1065,6 +1069,7 @@ app.get('/movies', async function (req, res) {
 	});
 });
 
+// get access to files folder
 app.get('/files', async function (req, res) {
 	const title = req.query.title ? req.query.title : '';
 	const directoryPath = `${__dirname}\\public\\files`;
