@@ -30,8 +30,10 @@
 	</body>
 	<script>
 		let video = `<%= video %>`;
+		let sub = `<%= sub %>`;
 		if (video) {
 			video = `/movies` + video;
+			sub = `/movies` + sub + `/sub.vtt`;
 			const table = document.getElementById('result-table');
 			table.style.display = 'none';
 			const videoElement = document.getElementById('video');
@@ -41,7 +43,13 @@
 			const source = document.createElement('source');
 			source.src = video;
 			source.type = 'video/mp4';
+			const track = document.createElement('track');
+			track.src = sub;
+			track.kind = 'subtitles';
+			track.srclang = 'en';
+			track.label = 'English';
 			videoElement.appendChild(source);
+			videoElement.appendChild(track);
 		}
 	</script>
 	<!-- <link rel="stylesheet" href="/css/movies.css" /> -->

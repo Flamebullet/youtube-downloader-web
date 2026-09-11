@@ -1047,11 +1047,15 @@ app.get('/movies', async function (req, res) {
 	fs.readdir(directoryPath + title, function (err, files) {
 		if (err) {
 			if (title.endsWith('.mkv') || title.endsWith('.mp4')) {
+				let subs = title.split('\\');
+				subs.pop();
+				let sub = subs.join('/');
 				return res.render('movies', {
 					JSONresults: encodeURIComponent(JSON.stringify({ results })),
 					results: results,
 					path: `${title}\\`,
-					video: `${title.replace(/\\/g, '/')}`
+					video: `${title.replace(/\\/g, '/')}`,
+					sub: sub
 				});
 			} else {
 				return console.log('Unable to scan directory: ' + err);
@@ -1064,7 +1068,8 @@ app.get('/movies', async function (req, res) {
 			JSONresults: encodeURIComponent(JSON.stringify({ results })),
 			results: results,
 			path: `${title}\\`,
-			video: null
+			video: null,
+			sub: null
 		});
 	});
 });
