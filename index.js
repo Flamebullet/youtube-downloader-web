@@ -101,7 +101,7 @@ server.listen(port, () => {
 	console.log(`Server is running on https://localhost:${port}`);
 });
 
-http.createServer(app).listen(80, () => {
+https.createServer(app).listen(80, () => {
 	console.log('HTTP server running on port https://localhost:80');
 });
 
