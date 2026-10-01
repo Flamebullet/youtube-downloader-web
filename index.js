@@ -28,7 +28,15 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(
+	express.static(path.join(__dirname, 'public'), {
+		setHeaders: (res, filePath) => {
+			if (filePath.endsWith('.mp4')) {
+				res.setHeader('Content-Type', 'video/mp4');
+			}
+		}
+	})
+);
 
 function throwError(res, err) {
 	return res.redirect(`/error?err=${err}`);
@@ -1064,6 +1072,7 @@ app.get('/movies', async function (req, res) {
 		files.forEach(function (file) {
 			results.push(file);
 		});
+
 		return res.render('movies', {
 			JSONresults: encodeURIComponent(JSON.stringify({ results })),
 			results: results,
