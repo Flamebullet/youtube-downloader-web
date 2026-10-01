@@ -6,8 +6,8 @@
 		<title>Movie</title>
         <meta property="og:title" content="Movie" />
         <meta property="og:type" content="video.movie" />
-        <meta property="og:url" content="/movies?title=<%= path %><%= results[i] %>" />
-        <meta property="og:video" content="/movies?title=<%= path %><%= results[i] %>" />
+        <meta property="og:url" content="https://yt-dl.ddns.net/movies?title=<%= path.replace(/\\/g, '/') %><%= results[i] %>" />
+        <meta property="og:video" content="https://yt-dl.ddns.net/movies?title=<%= path.replace(/\\/g, '/') %><%= results[i] %>" />
 		<meta
 			http-equiv="Content-Security-Policy"
 			content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; connect-src 'self'; font-src 'self'; object-src 'none'; frame-src 'none'; worker-src 'self'; base-uri 'self'; form-action 'self'"
