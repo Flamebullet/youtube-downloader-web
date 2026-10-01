@@ -1,5 +1,6 @@
 const express = require('express');
 const https = require('https');
+const http = require('http');
 const path = require('path');
 const app = express();
 // Downloading/file management modules
@@ -94,15 +95,16 @@ async function downloadImage(url, path) {
 // OUR ROUTES WILL GO HERE
 const key = fs.readFileSync(`${__dirname}\\certs\\domain.key`);
 const cert = fs.readFileSync(`${__dirname}\\certs\\domain.crt`);
-const server = https.createServer({ key: key, cert: cert }, app);
+const sslOptions = { key, cert };
 
-const port = 443;
-server.listen(port, () => {
-	console.log(`Server is running on https://localhost:${port}`);
+// HTTPS server (port 443)
+https.createServer(sslOptions, app).listen(443, () => {
+	console.log('HTTPS server running on https://localhost:443');
 });
 
-https.createServer(app).listen(80, () => {
-	console.log('HTTP server running on port https://localhost:80');
+// HTTP server (port 80)
+http.createServer(app).listen(80, () => {
+	console.log('HTTP server running on http://localhost:80');
 });
 
 // home page
