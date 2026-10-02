@@ -4,8 +4,8 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Movie</title>
-        <meta property="og:title" content="Movie" />
-        <meta property="og:type" content="video.movie" />
+        <meta property="og:title" content="Video" />
+        <meta property="og:type" content="video.other" />
         <meta property="og:url" content="http://yt-dl.ddns.net/movies?title=<%= path.replace(/\\/g, '/').replace(' ', '%20').slice(0, -1)  %>" />
         <meta property="og:video" content="http://yt-dl.ddns.net/movies<%= path.replace(/\\/g, '/').replace(' ', '%20').slice(0, -1)  %>" />
         <meta property="og:video:secure_url" content="https://yt-dl.ddns.net/movies<%= path.replace(/\\/g, '/').replace(' ', '%20').slice(0, -1)  %>" />
@@ -46,6 +46,7 @@
 			table.style.display = 'none';
 			const videoElement = document.getElementById('video');
 			videoElement.style.display = 'block';
+			videoElement.style.width = '100%';
 			videoElement.muted = false;
 			videoElement.volume = 1.0;
 			const source = document.createElement('source');
